@@ -1,37 +1,92 @@
 #!/usr/bin/env python3
-"""Junta lo editorial (datos/ciudades.json, datos/circuitos.json) con lo derivado
-(datos/generado.json) en docs/datos.json, que es lo único que lee la página.
-Se corre tras editar cualquiera de los tres; no hace llamadas de red."""
-import json, sys
+"""Genera el sitio a partir de los datos. Sin llamadas de red.
+
+  docs/datos.json        lo editorial (datos/*.json) + lo derivado (datos/generado.json)
+  docs/index.html        español, desde herramientas/plantilla.html + datos/textos.json
+  docs/en/index.html     inglés, ídem
+  docs/sitemap.xml
+
+Se corre tras editar cualquier fichero de datos/ o la plantilla. Si falta una traducción
+inglesa de algo que la página enseña, se para sin escribir nada."""
+import html, json, re, sys
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
 leer = lambda p: json.loads((RAIZ / p).read_text())
+sin_nota = lambda d: {k: v for k, v in d.items() if not k.startswith("_")}
 
-ciudades = {k: v for k, v in leer("datos/ciudades.json").items() if not k.startswith("_")}
+ciudades = sin_nota(leer("datos/ciudades.json"))
 circ = leer("datos/circuitos.json")
+coches = sin_nota(leer("datos/coches.json"))
+en = leer("datos/en.json")
+textos = leer("datos/textos.json")
 gen = leer("datos/generado.json")
 
+errores = []
 faltan = [n for n in ciudades if n not in gen["nombres"]]
 if faltan:
-    sys.exit(f"Sin datos de carretera para {faltan}: corre herramientas/descargar.py")
+    errores.append(f"sin datos de carretera para {faltan}: corre herramientas/descargar.py")
 for c in circ["circuitos"]:
     nodos = ["Madrid"] + c["ciudades"]
     for i, a in enumerate(nodos):
         for b in nodos[i + 1:]:
             if "|".join(sorted((a, b))) not in gen["tramos"]:
-                sys.exit(f"{c['id']}: falta el tramo {a} – {b}: corre herramientas/descargar.py")
+                errores.append(f"{c['id']}: falta el tramo {a} – {b}: corre herramientas/descargar.py")
+    if c["id"] not in en["circuitos"]:
+        errores.append(f"datos/en.json: falta el nombre del circuito {c['id']}")
+for n, c in ciudades.items():
+    if n not in en["ciudades"]:
+        errores.append(f"datos/en.json: falta la ciudad {n}")
+    if c["region"] not in en["regiones"]:
+        errores.append(f"datos/en.json: falta la región {c['region']}")
+if "precios" not in gen:
+    errores.append("datos/generado.json sin precios de combustible: corre herramientas/descargar.py")
+for c in coches.values():
+    if c["combustible"] not in gen.get("precios", {}):
+        errores.append(f"datos/coches.json: combustible desconocido {c['combustible']}")
+claves_es, claves_en = set(sin_nota(textos["es"])), set(sin_nota(textos["en"]))
+if claves_es != claves_en:
+    errores.append(f"datos/textos.json: claves distintas entre idiomas: {sorted(claves_es ^ claves_en)}")
+plantilla = (RAIZ / "herramientas/plantilla.html").read_text()
+huecos = set(re.findall(r"\{\{(\w+)\}\}", plantilla))
+if huecos - claves_es:
+    errores.append(f"plantilla.html usa textos que no existen: {sorted(huecos - claves_es)}")
+if errores:
+    sys.exit("No se genera nada:\n  " + "\n  ".join(errores))
 
 salida = {
     "generado": gen["generado"],
     "fuente": gen["fuente"],
     "mapa": gen["mapa"],
-    "ciudades": {n: {"region": c["region"], "horas": c["horas"], "ver": c["ver"],
-                     "xy": gen["xy"][n]} for n, c in ciudades.items()},
+    "precios": gen["precios"],
+    "coches": coches,
+    "ciudades": {n: {"region": c["region"], "horas": c["horas"], "ver": c["ver"], "xy": gen["xy"][n],
+                     "en": {"nombre": en["ciudades"][n].get("nombre", n), "ver": en["ciudades"][n]["ver"],
+                            "region": en["regiones"][c["region"]]}}
+                 for n, c in ciudades.items()},
     "tramos": gen["tramos"],
-    "circuitos": circ["circuitos"],
+    "circuitos": [{**c, "nombre_en": en["circuitos"][c["id"]]} for c in circ["circuitos"]],
     "fuera": circ["fuera"],
+    "fuera_en": en["fuera"],
 }
-destino = RAIZ / "docs/datos.json"
-destino.write_text(json.dumps(salida, ensure_ascii=False, separators=(",", ":")))
-print(f"{destino.relative_to(RAIZ)}: {len(salida['circuitos'])} circuitos, {destino.stat().st_size // 1024} KB")
+(RAIZ / "docs/datos.json").write_text(json.dumps(salida, ensure_ascii=False, separators=(",", ":")))
+
+# Los textos con HTML a propósito (llevan etiquetas) van tal cual; el resto se escapa.
+CON_HTML = {"pie_calculo", "pie_peajes", "creditos"}
+for idioma, destino in (("es", "docs/index.html"), ("en", "docs/en/index.html")):
+    t = textos[idioma]
+    pagina = re.sub(r"\{\{(\w+)\}\}",
+                    lambda m: t[m[1]] if m[1] in CON_HTML else html.escape(t[m[1]]), plantilla)
+    (RAIZ / destino).parent.mkdir(parents=True, exist_ok=True)
+    (RAIZ / destino).write_text(pagina)
+
+(RAIZ / "docs/sitemap.xml").write_text(
+    '<?xml version="1.0" encoding="UTF-8"?>\n'
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
+    + "".join(f'  <url><loc>{u}</loc>'
+              '<xhtml:link rel="alternate" hreflang="es" href="https://finde.jirulabs.com/"/>'
+              '<xhtml:link rel="alternate" hreflang="en" href="https://finde.jirulabs.com/en/"/></url>\n'
+              for u in ("https://finde.jirulabs.com/", "https://finde.jirulabs.com/en/"))
+    + "</urlset>\n")
+print(f"docs/: datos.json ({(RAIZ / 'docs/datos.json').stat().st_size // 1024} KB), index.html, en/index.html, sitemap.xml · "
+      f"{len(salida['circuitos'])} circuitos, {len(ciudades)} ciudades")

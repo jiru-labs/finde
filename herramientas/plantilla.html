@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{title}}</title>
+<meta name="description" content="{{description}}">
+<meta name="color-scheme" content="light dark">
+<link rel="canonical" href="{{url}}">
+<link rel="alternate" hreflang="es" href="https://finde.jirulabs.com/">
+<link rel="alternate" hreflang="en" href="https://finde.jirulabs.com/en/">
+<link rel="alternate" hreflang="x-default" href="https://finde.jirulabs.com/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{url}}">
+<meta property="og:title" content="{{title}}">
+<meta property="og:description" content="{{og_description}}">
+<meta property="og:locale" content="{{locale}}">
+<link rel="icon" href="{{raiz}}favicon.svg" type="image/svg+xml">
+<link rel="preload" href="{{raiz}}datos.json" as="fetch" crossorigin>
+<link rel="stylesheet" href="{{raiz}}estilo.css">
+<script type="module" src="{{raiz}}app.js"></script>
+</head>
+<body>
+<!-- Generado por herramientas/construir.py desde herramientas/plantilla.html y datos/textos.json: no editar aquí. -->
+<div class="wrap">
+  <header class="cab">
+    <div>
+      <p class="marca"><span class="senal">F</span> Finde <a href="{{jl_href}}" class="jl">· jirulabs</a>
+        <a href="{{otro_href}}" class="idioma" id="idioma" hreflang="{{otro_lang}}" lang="{{otro_lang}}">{{otro_label}}</a></p>
+      <h1>{{h1}}</h1>
+      <p class="lede">{{lede}}</p>
+    </div>
+  </header>
+
+  <section aria-labelledby="t-circ">
+    <h2 id="t-circ" class="seccion">{{t_circ}}</h2>
+    <div class="circuitos" id="circuitos" role="radiogroup" aria-label="{{aria_circuitos}}"></div>
+  </section>
+
+  <section class="principal" aria-labelledby="t-viaje">
+    <div class="col-mapa">
+      <div class="mapa"><svg id="mapa" role="img" aria-label="{{aria_mapa}}"></svg></div>
+      <div id="veredicto" class="veredicto" aria-live="polite"></div>
+      <dl class="cifras" id="cifras"></dl>
+    </div>
+    <div class="col-ciudades">
+      <div class="titulo-fila">
+        <h2 id="t-viaje" class="seccion">{{t_viaje}}</h2>
+        <div class="acciones">
+          <button type="button" id="invertir" class="btn">{{invertir}}</button>
+          <button type="button" id="estandar" class="btn">{{estandar}}</button>
+        </div>
+      </div>
+      <p class="ayuda">{{ayuda}}</p>
+      <ol class="ciudades" id="ciudades"></ol>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-itin">
+    <h2 id="t-itin" class="seccion">{{t_itin}}</h2>
+    <div class="dias" id="dias"></div>
+  </section>
+
+  <section aria-labelledby="t-aj">
+    <h2 id="t-aj" class="seccion">{{t_aj}}</h2>
+    <div class="ajustes">
+      <label>{{s1}} <input id="s1" type="time" value="08:30"></label>
+      <label>{{s2}} <input id="s2" type="time" value="09:30"></label>
+      <label>{{fin}} <input id="fin" type="time" value="22:00"></label>
+      <label>{{coche}} <select id="coche">
+        <option value="media">{{coche_media}}</option>
+        <option value="gasolina">{{coche_gasolina}}</option>
+        <option value="diesel">{{coche_diesel}}</option>
+        <option value="hibrido">{{coche_hibrido}}</option></select></label>
+      <label>{{l}} <input id="l" type="text" inputmode="decimal" autocomplete="off"></label>
+      <label>{{p}} <input id="p" type="text" inputmode="decimal" autocomplete="off"></label>
+      <label class="check"><input id="np" type="checkbox"> {{np}}</label>
+      <button type="button" id="compartir" class="btn btn-fuerte">{{compartir}}</button>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-comp">
+    <h2 id="t-comp" class="seccion">{{t_comp}}</h2>
+    <div class="tabla"><table>
+      <thead><tr><th>{{th_circuito}}</th><th>{{th_ciudades}}</th><th class="n">km</th><th class="n">{{th_carretera}}</th><th class="n">{{th_visita}}</th><th class="n">{{th_peaje}}</th><th class="n">{{th_llegada}}</th></tr></thead>
+      <tbody id="comparar"></tbody>
+    </table></div>
+  </section>
+
+  <footer class="pie" id="pie">
+    <p>{{pie_calculo}}</p>
+    <p>{{pie_peajes}}</p>
+    <p id="pie-combustible"></p>
+    <p id="fuera"></p>
+    <p class="creditos">{{creditos}}</p>
+  </footer>
+</div>
+<noscript><p class="wrap">{{noscript}}</p></noscript>
+</body>
+</html>

@@ -8,6 +8,7 @@ Se corre a mano cuando cambian ciudades o circuitos; la página no llama a nadie
     (router.project-osrm.org) y daba un ~17 % más de tiempo que lo habitual (Madrid–Sevilla 5 h 48)
     y sin marca de peaje; Valhalla da 4 h 54 y marca el peaje en cada maniobra.
   - Contorno de la península: Natural Earth 1:50m.
+  - Precio de gasolina y diésel: mediana nacional del día, del Geoportal de carburantes del Ministerio.
 Todo se cachea en herramientas/cache/; borra un fichero para volver a pedirlo.
 """
 import json, math, sys, time, urllib.parse, urllib.request
@@ -158,6 +159,24 @@ def contorno():
         paises[iso] = "".join(caminos)
     return paises
 
+MINETUR = "https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/"
+
+def precios():
+    """Mediana nacional de hoy de gasolina 95 E5 y gasóleo A, de todas las gasolineras que
+    publica el Ministerio (unas 11.000). Se cachea por día: el día siguiente se vuelve a pedir."""
+    res = pedir(MINETUR, CACHE / f"precios-{time.strftime('%Y-%m-%d')}.json", pausa=0)
+    if res.get("ResultadoConsulta") != "OK":
+        sys.exit(f"Precios del Ministerio: {res.get('ResultadoConsulta')}")
+    out = {"fecha": res["Fecha"][:10], "fuente": "Ministerio para la Transición Ecológica (Geoportal de carburantes)"}
+    for clave, campo in (("gasolina", "Precio Gasolina 95 E5"), ("diesel", "Precio Gasoleo A")):
+        v = sorted(float(e[campo].replace(",", ".")) for e in res["ListaEESSPrecio"] if e.get(campo))
+        if len(v) < 1000:  # guarda del cero: pocas estaciones = respuesta rota, no un precio
+            sys.exit(f"Precios del Ministerio: solo {len(v)} estaciones con {campo}")
+        out[clave] = round(v[len(v) // 2], 3)
+        out[clave + "_estaciones"] = len(v)
+    print(f"Precios {out['fecha']}: gasolina {out['gasolina']} €/L, diésel {out['diesel']} €/L")
+    return out
+
 def main():
     CACHE.mkdir(parents=True, exist_ok=True)
     ciudades = {k: v for k, v in json.loads((RAIZ / "datos/ciudades.json").read_text()).items() if not k.startswith("_")}
@@ -191,6 +210,7 @@ def main():
         "fuente": "Valhalla (valhalla1.openstreetmap.de, FOSSGIS) sobre OpenStreetMap; contorno de Natural Earth",
         "generado": time.strftime("%Y-%m-%d"),
         "mapa": {"ancho": ANCHO, "alto": ALTO, "paises": contorno()},
+        "precios": precios(),
         "nombres": nombres,
         "xy": {n: proyectar(*coords[n]) for n in nombres},
         "tramos": tramos,

@@ -15,13 +15,17 @@ Es una página estática: no tiene servidor, cookies ni analítica, y no llama a
 |---|---|
 | `datos/ciudades.json` | **Editorial.** Ciudades, región, horas estándar de visita y qué ver. |
 | `datos/circuitos.json` | **Editorial.** Circuitos: ciudades en orden de recorrido y las marcadas por defecto. |
-| `datos/generado.json` | Derivado por `herramientas/descargar.py`: coordenadas, tramos, mapa. No se edita. |
-| `herramientas/descargar.py` | Pide coordenadas y rutas a servicios abiertos (ver abajo). Se corre al cambiar ciudades o circuitos. |
-| `herramientas/construir.py` | Junta lo editorial y lo derivado en `docs/datos.json`. Sin red. |
-| `docs/` | El sitio publicado (GitHub Pages sirve esta carpeta). |
+| `datos/coches.json` | **Editorial.** Consumo en autovía de un coche de gasolina, uno diésel y un híbrido no enchufable. |
+| `datos/en.json` | **Editorial, inglés.** Qué ver, regiones, nombres de circuitos. Si falta una entrada, `construir.py` no genera nada. |
+| `datos/textos.json` | Textos fijos de la página en los dos idiomas (los que cambian con el plan están en `docs/app.js`, objeto `T`). |
+| `datos/generado.json` | Derivado por `herramientas/descargar.py`: coordenadas, tramos, mapa y precios del combustible. No se edita. |
+| `herramientas/descargar.py` | Pide coordenadas, rutas y precios a servicios abiertos (ver abajo). |
+| `herramientas/plantilla.html` | El HTML de la página, con un hueco `{{clave}}` por cada texto. |
+| `herramientas/construir.py` | Genera `docs/datos.json`, `docs/index.html` (es), `docs/en/index.html` (en) y el sitemap. Sin red. |
+| `docs/` | El sitio publicado (GitHub Pages sirve esta carpeta). `index.html` y `en/index.html` son generados: no se editan a mano. |
 
 ```bash
-python3 herramientas/descargar.py   # solo si cambian ciudades/circuitos (~6 min, 1 consulta/s)
+python3 herramientas/descargar.py   # si cambian ciudades/circuitos o para actualizar precios (rutas cacheadas)
 python3 herramientas/construir.py
 python3 -m http.server -d docs 8000 # y abrir http://localhost:8000
 ```
@@ -36,6 +40,9 @@ python3 -m http.server -d docs 8000 # y abrir http://localhost:8000
   peajes. Se probó antes el servidor de demostración de OSRM, pero daba un ~17 % más de tiempo que
   lo habitual y no marcaba los peajes.
 - **Contorno del mapa**: Natural Earth 1:50m.
+- **Precio del combustible**: mediana nacional del día de gasolina 95 y gasóleo A, de las ~11.000
+  gasolineras del Geoportal de carburantes del Ministerio. Por defecto el gasto es la media de los
+  tres tipos de coche de `coches.json`; en la página se puede elegir uno y cambiar consumo y precio.
 
 ### Reglas del plan
 

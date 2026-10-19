@@ -1,0 +1,6 @@
+{
+  "_nota": "Editorial. Consumo típico en autovía (L/100 km) de un turismo compacto. El híbrido es el no enchufable, de gasolina: en autovía ahorra mucho menos que en ciudad. El precio de cada combustible no se fija aquí: lo pone herramientas/descargar.py con la mediana nacional del Ministerio.",
+  "gasolina": {"l": 6.5, "combustible": "gasolina"},
+  "diesel":   {"l": 5.5, "combustible": "diesel"},
+  "hibrido":  {"l": 5.0, "combustible": "gasolina"}
+}

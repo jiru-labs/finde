@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Finde · Weekend road trips from Madrid</title>
+<meta name="description" content="Twelve Saturday-to-Sunday road trips from Madrid. Pick the cities, set the time in each one and check that you are home by Sunday night.">
+<meta name="color-scheme" content="light dark">
+<link rel="canonical" href="https://finde.jirulabs.com/en/">
+<link rel="alternate" hreflang="es" href="https://finde.jirulabs.com/">
+<link rel="alternate" hreflang="en" href="https://finde.jirulabs.com/en/">
+<link rel="alternate" hreflang="x-default" href="https://finde.jirulabs.com/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://finde.jirulabs.com/en/">
+<meta property="og:title" content="Finde · Weekend road trips from Madrid">
+<meta property="og:description" content="Pick a circuit, tick the cities, set the time in each one and check that you are home by Sunday night.">
+<meta property="og:locale" content="en_GB">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../datos.json" as="fetch" crossorigin>
+<link rel="stylesheet" href="../estilo.css">
+<script type="module" src="../app.js"></script>
+</head>
+<body>
+<!-- Generado por herramientas/construir.py desde herramientas/plantilla.html y datos/textos.json: no editar aquí. -->
+<div class="wrap">
+  <header class="cab">
+    <div>
+      <p class="marca"><span class="senal">F</span> Finde <a href="https://jirulabs.com/en/" class="jl">· jirulabs</a>
+        <a href="../" class="idioma" id="idioma" hreflang="es" lang="es">Español</a></p>
+      <h1>Weekend road trips from Madrid</h1>
+      <p class="lede">Leave on Saturday morning, spend one night away and drive back on Sunday night. Pick a circuit, tick the cities you want to see, set how long to stay in each one and check that you are home on time.</p>
+    </div>
+  </header>
+
+  <section aria-labelledby="t-circ">
+    <h2 id="t-circ" class="seccion">1 · Pick a circuit</h2>
+    <div class="circuitos" id="circuitos" role="radiogroup" aria-label="Circuits"></div>
+  </section>
+
+  <section class="principal" aria-labelledby="t-viaje">
+    <div class="col-mapa">
+      <div class="mapa"><svg id="mapa" role="img" aria-label="Route map"></svg></div>
+      <div id="veredicto" class="veredicto" aria-live="polite"></div>
+      <dl class="cifras" id="cifras"></dl>
+    </div>
+    <div class="col-ciudades">
+      <div class="titulo-fila">
+        <h2 id="t-viaje" class="seccion">2 · Cities and time in each one</h2>
+        <div class="acciones">
+          <button type="button" id="invertir" class="btn">⇄ Reverse direction</button>
+          <button type="button" id="estandar" class="btn">Back to standard</button>
+        </div>
+      </div>
+      <p class="ayuda">Only the cities along this circuit. The default hours are what it usually takes to see the essentials on foot, lunch included. The moon ☾ marks where you sleep: by default, the city that best balances the two days; tap another city&#x27;s moon to sleep there instead.</p>
+      <ol class="ciudades" id="ciudades"></ol>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-itin">
+    <h2 id="t-itin" class="seccion">3 · The plan, hour by hour</h2>
+    <div class="dias" id="dias"></div>
+  </section>
+
+  <section aria-labelledby="t-aj">
+    <h2 id="t-aj" class="seccion">Settings</h2>
+    <div class="ajustes">
+      <label>Leave on Saturday <input id="s1" type="time" value="08:30"></label>
+      <label>Leave on Sunday <input id="s2" type="time" value="09:30"></label>
+      <label>Home on Sunday by <input id="fin" type="time" value="22:00"></label>
+      <label>Car <select id="coche">
+        <option value="media">Average of the three</option>
+        <option value="gasolina">Petrol</option>
+        <option value="diesel">Diesel</option>
+        <option value="hibrido">Hybrid (non-plug-in)</option></select></label>
+      <label>Consumption (L/100 km) <input id="l" type="text" inputmode="decimal" autocomplete="off"></label>
+      <label>Fuel (€/L) <input id="p" type="text" inputmode="decimal" autocomplete="off"></label>
+      <label class="check"><input id="np" type="checkbox"> Avoid tolls</label>
+      <button type="button" id="compartir" class="btn btn-fuerte">Copy link to this plan</button>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-comp">
+    <h2 id="t-comp" class="seccion">Compare the circuits (standard version)</h2>
+    <div class="tabla"><table>
+      <thead><tr><th>Circuit</th><th>Cities</th><th class="n">km</th><th class="n">On the road</th><th class="n">In cities</th><th class="n">Tolls</th><th class="n">Home Sun.</th></tr></thead>
+      <tbody id="comparar"></tbody>
+    </table></div>
+  </section>
+
+  <footer class="pie" id="pie">
+    <p><strong>How it is calculated.</strong> Driving times come from the Valhalla route planner on OpenStreetMap data, without traffic. Each leg gets 15 min added to get into town and park, plus 15 min for every 2 h of continuous driving, the break recommended by Spain's traffic authority (DGT). You set the time in each city; the default is what it usually takes to see the essentials on foot. In the city where you sleep, that time is split between Saturday afternoon and Sunday morning.</p>
+    <p><strong>Tolls.</strong> The page shows the kilometres on toll roads according to OpenStreetMap and how much time it costs to avoid them; the price is not calculated because it depends on the stretch and the time of day. With “Avoid tolls” the whole plan is recalculated on the free alternative.</p>
+    <p id="pie-combustible"></p>
+    <p id="fuera"></p>
+    <p class="creditos">Road data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, routes by <a href="https://valhalla.github.io/valhalla/">Valhalla</a> (FOSSGIS server), city centres from <a href="https://www.wikidata.org">Wikidata</a>, outline from <a href="https://www.naturalearthdata.com">Natural Earth</a>. This page uses no cookies or analytics and makes no requests outside this site. <span id="generado"></span> · <a href="https://github.com/jiru-labs/finde">Code and data</a> · Made by <a href="https://jirulabs.com/en/">Jiru Labs</a>.</p>
+  </footer>
+</div>
+<noscript><p class="wrap">This page needs JavaScript to calculate the plans.</p></noscript>
+</body>
+</html>
