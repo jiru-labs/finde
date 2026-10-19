@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Finde · Escapadas de fin de semana en coche desde Madrid</title>
+<meta name="description" content="Doce circuitos en coche de sábado a domingo desde Madrid. Elige las ciudades, ajusta el tiempo en cada una y comprueba si llegas a casa el domingo por la noche.">
+<meta name="color-scheme" content="light dark">
+<link rel="canonical" href="https://finde.jirulabs.com/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://finde.jirulabs.com/">
+<meta property="og:title" content="Finde · Escapadas de fin de semana en coche desde Madrid">
+<meta property="og:description" content="Elige un circuito, marca las ciudades, ajusta el tiempo en cada una y comprueba si llegas a casa el domingo por la noche.">
+<meta property="og:locale" content="es_ES">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preload" href="datos.json" as="fetch" crossorigin>
+<link rel="stylesheet" href="estilo.css">
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header class="cab">
+    <div>
+      <p class="marca"><span class="senal">F</span> Finde <a href="https://jirulabs.com" class="jl">· jirulabs</a></p>
+      <h1>Escapadas de fin de semana en coche desde Madrid</h1>
+      <p class="lede">Sales el sábado por la mañana, duermes fuera una noche y vuelves el domingo por la noche. Elige un circuito, marca las ciudades que quieres ver, ajusta el tiempo en cada una y comprueba si llegas a casa a tu hora.</p>
+    </div>
+  </header>
+
+  <section aria-labelledby="t-circ">
+    <h2 id="t-circ" class="seccion">1 · Elige un circuito</h2>
+    <div class="circuitos" id="circuitos" role="radiogroup" aria-label="Circuitos"></div>
+  </section>
+
+  <section class="principal" aria-labelledby="t-viaje">
+    <div class="col-mapa">
+      <div class="mapa"><svg id="mapa" role="img" aria-label="Mapa del recorrido"></svg></div>
+      <div id="veredicto" class="veredicto" aria-live="polite"></div>
+      <dl class="cifras" id="cifras"></dl>
+    </div>
+    <div class="col-ciudades">
+      <div class="titulo-fila">
+        <h2 id="t-viaje" class="seccion">2 · Ciudades y tiempo en cada una</h2>
+        <div class="acciones">
+          <button type="button" id="invertir" class="btn">⇄ Invertir sentido</button>
+          <button type="button" id="estandar" class="btn">Volver al estándar</button>
+        </div>
+      </div>
+      <p class="ayuda">Solo las ciudades que pillan de camino en este circuito. Las horas por defecto son lo que suele llevar ver lo esencial a pie, con la comida incluida. La luna marca dónde duermes: por defecto, la ciudad que mejor reparte los dos días; púlsala en otra para cambiarla.</p>
+      <ol class="ciudades" id="ciudades"></ol>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-itin">
+    <h2 id="t-itin" class="seccion">3 · El plan, hora a hora</h2>
+    <div class="dias" id="dias"></div>
+  </section>
+
+  <section aria-labelledby="t-aj">
+    <h2 id="t-aj" class="seccion">Ajustes</h2>
+    <div class="ajustes">
+      <label>Salida el sábado <input id="s1" type="time" value="08:30"></label>
+      <label>Salida el domingo <input id="s2" type="time" value="09:30"></label>
+      <label>En casa el domingo antes de <input id="fin" type="time" value="22:00"></label>
+      <label>Consumo (L/100 km) <input id="l" type="number" min="3" max="20" step="0.1" value="6.5"></label>
+      <label>Combustible (€/L) <input id="p" type="number" min="0.5" max="3" step="0.01" value="1.55"></label>
+      <label class="check"><input id="np" type="checkbox"> Evitar peajes</label>
+      <button type="button" id="compartir" class="btn btn-fuerte">Copiar enlace a este plan</button>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-comp">
+    <h2 id="t-comp" class="seccion">Comparar los circuitos (versión estándar)</h2>
+    <div class="tabla"><table>
+      <thead><tr><th>Circuito</th><th>Ciudades</th><th class="n">km</th><th class="n">En carretera</th><th class="n">En ciudades</th><th class="n">Peaje</th><th class="n">Llegada dom.</th></tr></thead>
+      <tbody id="comparar"></tbody>
+    </table></div>
+  </section>
+
+  <footer class="pie" id="pie">
+    <p><strong>Cómo se calcula.</strong> Los tiempos de conducción salen del calculador de rutas Valhalla sobre el mapa de OpenStreetMap, sin tráfico. A cada tramo se le suman 15 min para entrar en la ciudad y aparcar, y 15 min más por cada 2 h seguidas al volante, para descansar como recomienda la DGT. El tiempo de cada ciudad lo pones tú; el que viene marcado es lo que suele llevar ver lo esencial a pie. En la ciudad donde duermes, ese tiempo se reparte entre la tarde del sábado y la mañana del domingo.</p>
+    <p><strong>Peajes.</strong> Se marcan los kilómetros por tramos de peaje según OpenStreetMap, y cuánto tiempo cuesta evitarlos; el importe no se calcula porque depende del tramo y la hora. Con «Evitar peajes» todo el plan se recalcula por la alternativa gratuita.</p>
+    <p id="fuera"></p>
+    <p class="creditos">Datos de carreteras © colaboradores de <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, rutas con <a href="https://valhalla.github.io/valhalla/">Valhalla</a> (servidor de FOSSGIS), centros urbanos de <a href="https://www.wikidata.org">Wikidata</a>, contorno de <a href="https://www.naturalearthdata.com">Natural Earth</a>. Esta página no usa cookies ni analítica y no hace ninguna llamada fuera de este sitio. <span id="generado"></span> · <a href="https://github.com/jiru-labs/finde">Código y datos</a> · Hecho por <a href="https://jirulabs.com">Jiru Labs</a>.</p>
+  </footer>
+</div>
+<noscript><p class="wrap">Esta página necesita JavaScript para calcular los planes.</p></noscript>
+</body>
+</html>

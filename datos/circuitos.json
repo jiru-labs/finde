@@ -1,0 +1,18 @@
+{
+  "_nota": "Editorial. 'ciudades' va en el orden del recorrido (se puede invertir en la página). 'por_defecto' = las marcadas al abrir. Dónde se duerme no se fija aquí: la página elige la ciudad que mejor reparte los dos días. Todos salen y vuelven a Madrid.",
+  "circuitos": [
+    {"id": "castilla", "nombre": "Segovia, Salamanca y Ávila", "ciudades": ["Segovia", "Valladolid", "Zamora", "Salamanca", "Ávila"], "por_defecto": ["Segovia", "Salamanca", "Ávila"]},
+    {"id": "castilla-norte", "nombre": "Valladolid, León y Burgos", "ciudades": ["Valladolid", "Palencia", "León", "Burgos", "Lerma"], "por_defecto": ["Valladolid", "León", "Burgos"]},
+    {"id": "vasca", "nombre": "Bilbao y San Sebastián", "ciudades": ["Lerma", "Burgos", "Vitoria-Gasteiz", "Bilbao", "Getaria", "San Sebastián"], "por_defecto": ["Bilbao", "San Sebastián"]},
+    {"id": "rioja", "nombre": "La Rioja y Navarra", "ciudades": ["Haro", "Laguardia", "Logroño", "Pamplona", "Olite", "Tudela", "Soria"], "por_defecto": ["Logroño", "Pamplona", "Olite", "Soria"]},
+    {"id": "asturias", "nombre": "León y Asturias", "ciudades": ["León", "Oviedo", "Gijón", "Cangas de Onís"], "por_defecto": ["León", "Oviedo", "Gijón"]},
+    {"id": "cantabria", "nombre": "Costa de Cantabria", "ciudades": ["Burgos", "Santander", "Santillana del Mar", "Comillas", "San Vicente de la Barquera"], "por_defecto": ["Santander", "Santillana del Mar", "Comillas"]},
+    {"id": "andalucia-occidental", "nombre": "Córdoba y Sevilla", "ciudades": ["Córdoba", "Carmona", "Sevilla", "Zafra", "Mérida"], "por_defecto": ["Córdoba", "Sevilla"]},
+    {"id": "andalucia-oriental", "nombre": "Baeza, Úbeda y Granada", "ciudades": ["Baeza", "Úbeda", "Granada", "Jaén", "Almagro"], "por_defecto": ["Baeza", "Úbeda", "Granada"]},
+    {"id": "extremadura", "nombre": "Trujillo, Cáceres y Mérida", "ciudades": ["Plasencia", "Trujillo", "Cáceres", "Mérida", "Guadalupe"], "por_defecto": ["Trujillo", "Cáceres", "Mérida"]},
+    {"id": "levante", "nombre": "Cuenca y Valencia", "ciudades": ["Cuenca", "Valencia", "Xàtiva", "Alicante"], "por_defecto": ["Cuenca", "Valencia"]},
+    {"id": "aragon", "nombre": "Zaragoza, Teruel y Albarracín", "ciudades": ["Sigüenza", "Zaragoza", "Teruel", "Albarracín"], "por_defecto": ["Zaragoza", "Teruel", "Albarracín"]},
+    {"id": "mancha", "nombre": "Toledo y La Mancha", "ciudades": ["Toledo", "Consuegra", "Almagro", "Aranjuez", "Chinchón"], "por_defecto": ["Toledo", "Consuegra", "Almagro", "Aranjuez"]}
+  ],
+  "fuera": "Galicia, Barcelona y la Costa del Sol quedan fuera: a más de 5 h de Madrid cada trayecto, dos días se van en el coche."
+}
