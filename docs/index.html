@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Finde · Escapadas de fin de semana en coche desde Madrid</title>
-<meta name="description" content="Doce circuitos en coche de sábado a domingo desde Madrid. Elige las ciudades, ajusta el tiempo en cada una y comprueba si llegas a casa el domingo por la noche.">
+<title>Finde · Conoce casi toda España en escapadas de fin de semana desde Madrid</title>
+<meta name="description" content="Rutas en coche de sábado a domingo desde Madrid: doce circuitos listos y más de cien lugares a menos de 5 horas. Elige ciudades, ajusta el tiempo en cada una y comprueba si llegas a casa el domingo.">
 <meta name="color-scheme" content="light dark">
 <link rel="canonical" href="https://finde.jirulabs.com/">
 <link rel="alternate" hreflang="es" href="https://finde.jirulabs.com/">
@@ -12,9 +12,13 @@
 <link rel="alternate" hreflang="x-default" href="https://finde.jirulabs.com/">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://finde.jirulabs.com/">
-<meta property="og:title" content="Finde · Escapadas de fin de semana en coche desde Madrid">
-<meta property="og:description" content="Elige un circuito, marca las ciudades, ajusta el tiempo en cada una y comprueba si llegas a casa el domingo por la noche.">
+<meta property="og:title" content="Finde · Conoce casi toda España en escapadas de fin de semana desde Madrid">
+<meta property="og:description" content="Doce rutas listas y más de cien lugares a menos de 5 h de Madrid. Sales el sábado, vuelves el domingo y la página te dice si llegas.">
 <meta property="og:locale" content="es_ES">
+<meta property="og:image" content="https://finde.jirulabs.com/og-es.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preload" href="datos.json" as="fetch" crossorigin>
 <link rel="stylesheet" href="estilo.css">
@@ -27,9 +31,16 @@
     <div>
       <p class="marca"><span class="senal">F</span> Finde <a href="https://jirulabs.com" class="jl">· jirulabs</a>
         <a href="en/" class="idioma" id="idioma" hreflang="en" lang="en">English</a></p>
-      <h1>Escapadas de fin de semana en coche desde Madrid</h1>
-      <p class="lede">Sales el sábado por la mañana, duermes fuera una noche y vuelves el domingo por la noche. Elige un circuito, marca las ciudades que quieres ver, ajusta el tiempo en cada una y comprueba si llegas a casa a tu hora.</p>
+      <p class="kicker">Escapadas en coche de sábado a domingo</p>
+      <h1>Conoce casi toda España desde Madrid, un fin de semana cada vez</h1>
+      <p class="lede">Sales el sábado por la mañana, duermes fuera una noche y el domingo por la noche estás en casa. Elige una ruta o arma la tuya: la página calcula el plan hora a hora y te dice si llegas.</p>
+      <p class="portada" id="portada"></p>
     </div>
+    <ul class="ventajas">
+      <li><strong>Rutas que caben</strong>Circuitos clásicos pensados para dos días, con el tiempo justo para ver lo esencial de cada ciudad.</li>
+      <li><strong>Sin sorpresas</strong>Tiempos reales de carretera, descansos, peajes y lo que te vas a gastar en combustible.</li>
+      <li><strong>A tu manera</strong>Cambia ciudades y horas, o arma tu ruta desde cero con el buscador. El plan se comparte con un enlace.</li>
+    </ul>
   </header>
 
   <section aria-labelledby="t-circ">
@@ -49,9 +60,18 @@
         <div class="acciones">
           <button type="button" id="invertir" class="btn">⇄ Invertir sentido</button>
           <button type="button" id="estandar" class="btn">Volver al estándar</button>
+          <button type="button" id="editar" class="btn">✎ Hazlo a tu manera</button>
+          <button type="button" id="ordenar" class="btn" hidden>Ordenar para conducir menos</button>
+          <button type="button" id="vaciar" class="btn" hidden>Vaciar</button>
         </div>
       </div>
-      <p class="ayuda">Solo las ciudades que pillan de camino en este circuito. Las horas por defecto son lo que suele llevar ver lo esencial a pie, con la comida incluida. La luna ☾ marca dónde duermes: por defecto, la ciudad que mejor reparte los dos días; pulsa la luna de otra ciudad para dormir allí.</p>
+      <p class="ayuda" id="ayuda-circ">Solo las ciudades que pillan de camino en este circuito. Las horas por defecto son lo que suele llevar ver lo esencial a pie, con la comida incluida. La luna ☾ marca dónde duermes: por defecto, la ciudad que mejor reparte los dos días; pulsa la luna de otra ciudad para dormir allí.</p>
+      <p class="ayuda" id="ayuda-propio" hidden>Arma tu propio recorrido con cualquier lugar del buscador; todos están a menos de 5 h 15 de Madrid. Cada uno se mete donde menos rodeo supone, con las flechas cambias el orden y la luna ☾ marca dónde duermes.</p>
+      <div class="buscador" id="buscador" hidden>
+        <input id="buscar" type="search" placeholder="Busca una ciudad o un pueblo…" aria-label="Busca una ciudad o un pueblo…" autocomplete="off" spellcheck="false">
+        <p class="sug-tit" id="sug-tit"></p>
+        <ul class="resultados" id="resultados"></ul>
+      </div>
       <ol class="ciudades" id="ciudades"></ol>
     </div>
   </section>

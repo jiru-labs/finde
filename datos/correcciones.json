@@ -1,0 +1,6 @@
+{
+  "_nota": "Tiempos medidos que corrigen a Valhalla donde se equivoca. Cada entrada dice de dónde sale. construir.py las aplica a los circuitos y al catálogo; el resto de tiempos son de Valhalla tal cual. Contraste del 19-10-2026 con Google Maps (sin tráfico, 22:35): Madrid-Zaragoza, Madrid-Bilbao, Madrid-Valencia y Segovia-Salamanca dentro de ±4 %; Teruel-Albarracín no.",
+  "tramos": {
+    "Albarracín|Teruel": {"min": 37, "fuente": "Google Maps, 19-10-2026 22:38, 37,6 km; Valhalla daba 61 min por la misma carretera"}
+  }
+}

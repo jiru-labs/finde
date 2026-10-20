@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Finde · Weekend road trips from Madrid</title>
-<meta name="description" content="Twelve Saturday-to-Sunday road trips from Madrid. Pick the cities, set the time in each one and check that you are home by Sunday night.">
+<title>Finde · See most of Spain on weekend road trips from Madrid</title>
+<meta name="description" content="Saturday-to-Sunday road trips from Madrid: twelve ready-made circuits and over a hundred places less than 5 hours away. Pick the cities, set the time in each one and check that you are home on Sunday.">
 <meta name="color-scheme" content="light dark">
 <link rel="canonical" href="https://finde.jirulabs.com/en/">
 <link rel="alternate" hreflang="es" href="https://finde.jirulabs.com/">
@@ -12,9 +12,13 @@
 <link rel="alternate" hreflang="x-default" href="https://finde.jirulabs.com/">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://finde.jirulabs.com/en/">
-<meta property="og:title" content="Finde · Weekend road trips from Madrid">
-<meta property="og:description" content="Pick a circuit, tick the cities, set the time in each one and check that you are home by Sunday night.">
+<meta property="og:title" content="Finde · See most of Spain on weekend road trips from Madrid">
+<meta property="og:description" content="Twelve ready-made routes and over a hundred places less than 5 h from Madrid. Leave on Saturday, come back on Sunday, and the page tells you if it fits.">
 <meta property="og:locale" content="en_GB">
+<meta property="og:image" content="https://finde.jirulabs.com/og-en.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="preload" href="../datos.json" as="fetch" crossorigin>
 <link rel="stylesheet" href="../estilo.css">
@@ -27,9 +31,16 @@
     <div>
       <p class="marca"><span class="senal">F</span> Finde <a href="https://jirulabs.com/en/" class="jl">· jirulabs</a>
         <a href="../" class="idioma" id="idioma" hreflang="es" lang="es">Español</a></p>
-      <h1>Weekend road trips from Madrid</h1>
-      <p class="lede">Leave on Saturday morning, spend one night away and drive back on Sunday night. Pick a circuit, tick the cities you want to see, set how long to stay in each one and check that you are home on time.</p>
+      <p class="kicker">Saturday-to-Sunday road trips</p>
+      <h1>See most of Spain from Madrid, one weekend at a time</h1>
+      <p class="lede">Leave on Saturday morning, spend one night away and be home on Sunday night. Pick a route or build your own: the page works out the plan hour by hour and tells you whether it fits.</p>
+      <p class="portada" id="portada"></p>
     </div>
+    <ul class="ventajas">
+      <li><strong>Routes that fit</strong>Classic circuits designed for two days, with just enough time to see the essentials of each city.</li>
+      <li><strong>No surprises</strong>Real driving times, breaks, tolls and what you will spend on fuel.</li>
+      <li><strong>Your way</strong>Change cities and hours, or build your route from scratch with the search box. Share the plan with a link.</li>
+    </ul>
   </header>
 
   <section aria-labelledby="t-circ">
@@ -49,9 +60,18 @@
         <div class="acciones">
           <button type="button" id="invertir" class="btn">⇄ Reverse direction</button>
           <button type="button" id="estandar" class="btn">Back to standard</button>
+          <button type="button" id="editar" class="btn">✎ Make it your own</button>
+          <button type="button" id="ordenar" class="btn" hidden>Reorder to drive less</button>
+          <button type="button" id="vaciar" class="btn" hidden>Clear</button>
         </div>
       </div>
-      <p class="ayuda">Only the cities along this circuit. The default hours are what it usually takes to see the essentials on foot, lunch included. The moon ☾ marks where you sleep: by default, the city that best balances the two days; tap another city&#x27;s moon to sleep there instead.</p>
+      <p class="ayuda" id="ayuda-circ">Only the cities along this circuit. The default hours are what it usually takes to see the essentials on foot, lunch included. The moon ☾ marks where you sleep: by default, the city that best balances the two days; tap another city&#x27;s moon to sleep there instead.</p>
+      <p class="ayuda" id="ayuda-propio" hidden>Build your own route with any place in the search; all of them are less than 5 h 15 from Madrid. Each one goes where it adds the least detour, the arrows change the order and the moon ☾ marks where you sleep.</p>
+      <div class="buscador" id="buscador" hidden>
+        <input id="buscar" type="search" placeholder="Search for a city or town…" aria-label="Search for a city or town…" autocomplete="off" spellcheck="false">
+        <p class="sug-tit" id="sug-tit"></p>
+        <ul class="resultados" id="resultados"></ul>
+      </div>
       <ol class="ciudades" id="ciudades"></ol>
     </div>
   </section>

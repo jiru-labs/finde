@@ -30,6 +30,18 @@ python3 herramientas/construir.py
 python3 -m http.server -d docs 8000 # y abrir http://localhost:8000
 ```
 
+### Imagen para compartir
+
+`docs/og-es.png` y `docs/og-en.png` (1200×630, la vista previa en WhatsApp y redes) salen de
+`herramientas/og.html`, que dibuja el mapa con `docs/datos.json`. Se regeneran tras `construir.py`
+sirviendo la raíz del repo y fotografiándola con cualquier Chrome sin interfaz:
+
+```bash
+python3 -m http.server 8767 &
+chrome --headless --window-size=1200,630 --virtual-time-budget=5000 \
+  --screenshot=docs/og-es.png "http://127.0.0.1:8767/herramientas/og.html?lang=es"   # y lang=en
+```
+
 ### De dónde salen los datos
 
 - **Coordenadas**: Nominatim identifica la ciudad y Wikidata da su centro urbano. Nominatim solo

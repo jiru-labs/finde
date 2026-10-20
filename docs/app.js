@@ -1,9 +1,14 @@
-// Finde — calcula el plan de sábado a domingo de un circuito y lo pinta.
-// Todos los datos vienen de datos.json (herramientas/construir.py); aquí no hay llamadas fuera.
+// Finde — calcula el plan de sábado a domingo de un circuito (o de un recorrido propio) y lo pinta.
+// Todos los datos vienen de datos.json y catalogo.json (herramientas/construir.py); no hay llamadas fuera.
 const D = await (await fetch(new URL("datos.json", import.meta.url))).json();
 const C = D.ciudades, CIRC = D.circuitos;
 const $ = s => document.querySelector(s);
 const EN = document.documentElement.lang === "en";
+const PROPIO = "propio";
+let K = null;  // catálogo de «Tu recorrido»: se descarga la primera vez que se abre
+async function cargaCatalogo() {
+  if (!K) K = await (await fetch(new URL("catalogo.json", import.meta.url))).json();
+}
 
 const APARCAR = 15;          // min por tramo: entrar en la ciudad y aparcar
 const DESCANSO = 15;         // min por cada 2 h seguidas al volante (DGT)
@@ -14,6 +19,7 @@ const AJ = { s1: "08:30", s2: "09:30", fin: "22:00", np: false, coche: "media", 
 
 let A = { ...AJ };  // ajustes
 let S;              // estado del circuito elegido
+let propioGuardado = null;  // «Tu recorrido» sobrevive a mirar otros circuitos
 
 // ---------- utilidades ----------
 const hm = v => { const [a, b] = (v || "00:00").split(":").map(Number); return a * 60 + (b || 0); };
@@ -23,11 +29,13 @@ const dur = m => { m = Math.round(m); const h = Math.floor(m / 60), r = m % 60;
   return h ? (r ? `${h} h ${String(r).padStart(2, "0")}` : `${h} h`) : `${r} min`; };
 const num = (x, dec = 2) => x.toLocaleString(EN ? "en-GB" : "es-ES", { minimumFractionDigits: dec, maximumFractionDigits: dec });
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const plano = s => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
 const circ = id => CIRC.find(c => c.id === id);
 const nom = c => EN ? C[c].en.nombre : c;              // las claves internas siguen en español
 const reg = c => EN ? C[c].en.region : C[c].region;
 const ver = c => EN ? C[c].en.ver : C[c].ver;
 const nomCirc = c => EN ? c.nombre_en : c.nombre;
+const esPropio = st => st.c === PROPIO;
 
 // ---------- textos que cambian con el plan (los fijos están en datos/textos.json) ----------
 const T = EN ? {
@@ -37,21 +45,28 @@ const T = EN ? {
   sabTarde: f => `Fits, but Saturday ends at ${f}.`, sabTardeSub: "A late dinner. Try sleeping in an earlier city.",
   justo: l => `Fits, just: home at ${l}.`, justoSub: (h, f) => `Only ${h} to spare before ${f}. One traffic jam on the way back and you're late.`,
   ok: l => `Fits: home on Sunday at ${l}.`, okSub: (h, f) => `${h} to spare before ${f}.`,
+  lejos: (a, b) => `Doesn't fit: ${a} and ${b} are too far apart for the same weekend.`, lejosSub: "Remove one of them or put a city in between.",
+  vacio: "Add your first city with the search box.", vacioSub: "Each result shows how much time it adds and whether you'd still be home on time.",
   distancia: "Distance", carretera: "On the road", ciudades: "In cities", peaje: "Tolls", ninguno: "None",
   combustible: "Fuel", enCasa: "Home", elDomingo: "on Sunday",
   inevitables: "unavoidable", evitados: "avoided", evitarlos: "avoiding them", mismo: "same time",
   menos: "Less time", mas: "More time", horasEn: c => `Hours in ${c}`, horasSab: c => `Hours on Saturday in ${c}`, horasDom: c => `Hours on Sunday in ${c}`,
   dormirAqui: "Sleep here", dormirEn: c => `Sleep in ${c}`, incluir: c => `Include ${c}`,
+  subir: c => `Move ${c} earlier`, bajar: c => `Move ${c} later`, quitar: c => `Remove ${c}`,
   duermes: "You sleep here", auto: "chosen to balance the two days", tuyo: "chosen by you · tap the moon again to go back to automatic",
   partido: h => `Since you sleep here, the visit is split in two: the afternoon you arrive and the morning before you move on. ${h} in total.`,
   tardeSab: "Saturday afternoon", mananaDom: "Sunday morning", soloCena: "just arrive and have dinner", soloSalir: "leave right after breakfast",
-  noCabe: "doesn't fit", casa: l => `home ${l}`,
+  noCabe: "doesn't fit", casa: l => `home ${l}`, demasiadoLejos: "too far from your route",
   dias: ["Saturday", "Sunday"], nota: { tarde: "afternoon", manana: "morning" }, peajeKm: k => `toll ${k} km`,
   cena: c => `Dinner and bed in ${c}`, finCasa: "Home",
   mucho: h => `Over ${h} on the road today: take turns driving`, muyTarde: "The day ends very late", despues: f => `You get home after ${f}`,
   cab: (v, i, t) => `${v} on the road · ${i ? "home" : "ends"} ${t}`,
   copiado: "Link copied: anyone who opens it will see this same plan", copiaTu: "Copy the address from the browser bar",
   fueraTit: "What's not here.", generado: f => `Road data from ${f}`,
+  portada: (c, n, r) => `<b>${c}</b> ready-made routes · <b>${n}</b> places less than 5 h away · <b>${r}</b> regions · free, no sign-up`,
+  propio: "Your own route", propioVacio: n => `＋ Build it with any of ${n} places`,
+  sugerencias: "On your way, and you'd still be home on time:", sugerenciasVacio: "To start, the closest ones:",
+  resultados: n => n ? `${n} result${n > 1 ? "s" : ""}:` : "No place in the catalogue matches.",
   coches: { media: "average", gasolina: "petrol", diesel: "diesel", hibrido: "hybrid" },
   fuelMedia: "average of petrol, diesel and hybrid",
   fuelPie: (p, f) => `<strong>Fuel.</strong> By default, the average of what a petrol car (${f(D.coches.gasolina.l, 1)} L/100 km), a diesel (${f(D.coches.diesel.l, 1)}) and a non-plug-in hybrid (${f(D.coches.hibrido.l, 1)}) would use on the motorway, at the national median price on ${p.fecha}: petrol 95 at ${f(p.gasolina, 3)} €/L and diesel at ${f(p.diesel, 3)} €/L (Spanish Ministry for the Ecological Transition, ${p.gasolina_estaciones.toLocaleString("en-GB")} petrol stations). In Settings you can pick your type of car and change the consumption and the price.`,
@@ -62,40 +77,66 @@ const T = EN ? {
   sabTarde: f => `Cabe, pero el sábado terminas a las ${f}.`, sabTardeSub: "Cenas tarde. Prueba a dormir en una ciudad anterior.",
   justo: l => `Cabe muy justo: en casa a las ${l}.`, justoSub: (h, f) => `Solo ${h} de margen antes de las ${f}. Un atasco a la vuelta y no llegas.`,
   ok: l => `Cabe: en casa el domingo a las ${l}.`, okSub: (h, f) => `Te sobran ${h} antes de las ${f}.`,
+  lejos: (a, b) => `No cabe: ${a} y ${b} quedan demasiado lejos para el mismo fin de semana.`, lejosSub: "Quita una de las dos o pon una ciudad en medio.",
+  vacio: "Añade tu primera ciudad con el buscador.", vacioSub: "Cada resultado te dice cuánto tiempo añade y si seguirías llegando a tu hora.",
   distancia: "Distancia", carretera: "En carretera", ciudades: "En ciudades", peaje: "Peaje", ninguno: "Ninguno",
   combustible: "Combustible", enCasa: "En casa", elDomingo: "el domingo",
   inevitables: "inevitables", evitados: "evitados", evitarlos: "evitarlos", mismo: "mismo tiempo",
   menos: "Menos tiempo", mas: "Más tiempo", horasEn: c => `Horas en ${c}`, horasSab: c => `Horas el sábado en ${c}`, horasDom: c => `Horas el domingo en ${c}`,
   dormirAqui: "Dormir aquí", dormirEn: c => `Dormir en ${c}`, incluir: c => `Incluir ${c}`,
+  subir: c => `Adelantar ${c}`, bajar: c => `Atrasar ${c}`, quitar: c => `Quitar ${c}`,
   duermes: "Aquí duermes", auto: "elegida para cuadrar los dos días", tuyo: "elegida por ti · pulsa otra vez la luna para volver al automático",
   partido: h => `Como duermes aquí, la visita se parte en dos: la tarde que llegas y la mañana antes de seguir. En total, ${h}.`,
   tardeSab: "Sábado por la tarde", mananaDom: "Domingo por la mañana", soloCena: "solo llegar y cenar", soloSalir: "sales nada más desayunar",
-  noCabe: "no cabe", casa: l => `en casa ${l}`,
+  noCabe: "no cabe", casa: l => `en casa ${l}`, demasiadoLejos: "demasiado lejos de tu ruta",
   dias: ["Sábado", "Domingo"], nota: { tarde: "tarde", manana: "mañana" }, peajeKm: k => `peaje ${k} km`,
   cena: c => `Cena y a dormir en ${c}`, finCasa: "En casa",
   mucho: h => `Más de ${h} en carretera hoy: mejor turnarse`, muyTarde: "Terminas el día muy tarde", despues: f => `Llegas después de las ${f}`,
   cab: (v, i, t) => `${v} en carretera · ${i ? "en casa" : "fin"} ${t}`,
   copiado: "Enlace copiado: quien lo abra verá este mismo plan", copiaTu: "Copia la dirección de la barra del navegador",
   fueraTit: "Lo que no está.", generado: f => `Datos de carretera del ${f}`,
+  portada: (c, n, r) => `<b>${c}</b> rutas listas · <b>${n}</b> lugares a menos de 5 h · <b>${r}</b> comunidades · gratis y sin registro`,
+  propio: "Tu recorrido", propioVacio: n => `＋ Ármalo con cualquiera de ${n} lugares`,
+  sugerencias: "Te pillan de camino y seguirías llegando a tu hora:", sugerenciasVacio: "Para empezar, las más cercanas:",
+  resultados: n => n ? `${n} resultado${n > 1 ? "s" : ""}:` : "Ningún lugar del catálogo coincide.",
   coches: { media: "media", gasolina: "gasolina", diesel: "diésel", hibrido: "híbrido" },
   fuelMedia: "media de gasolina, diésel e híbrido",
   fuelPie: (p, f) => `<strong>Combustible.</strong> Por defecto, la media de lo que gastarían en autovía un coche de gasolina (${f(D.coches.gasolina.l, 1)} L/100 km), uno diésel (${f(D.coches.diesel.l, 1)}) y un híbrido no enchufable (${f(D.coches.hibrido.l, 1)}), a la mediana nacional de precios del ${p.fecha}: gasolina 95 a ${f(p.gasolina, 3)} €/L y diésel a ${f(p.diesel, 3)} €/L (Ministerio para la Transición Ecológica, ${p.gasolina_estaciones.toLocaleString("es-ES")} gasolineras). En «Ajustes» puedes elegir tu tipo de coche y cambiar el consumo y el precio.`,
 };
 
 function base(id) {
+  if (id === PROPIO) return { c: PROPIO, sel: [], n: null, inv: false, h: {}, t: null, m: null };
   const c = circ(id) || CIRC[0];
   return { c: c.id, sel: [...c.por_defecto], n: null, inv: false, h: {}, t: null, m: null };  // n null = automática
 }
 const horas = (st, c) => st.h[c] ?? C[c].horas;
+// En un circuito el orden es el suyo; en «Tu recorrido», el de la lista (sel ya va en orden de ruta).
 function orden(st) {
-  const o = circ(st.c).ciudades.filter(c => st.sel.includes(c));
+  const o = esPropio(st) ? [...st.sel] : circ(st.c).ciudades.filter(c => st.sel.includes(c));
   return st.inv ? o.reverse() : o;
 }
-const tramo = (a, b) => D.tramos[[a, b].sort().join("|")];
+
+// Un tramo sale del detalle de los circuitos si existe, si no del catálogo. null = demasiado lejos.
+function tramo(a, b, sinPeajes) {
+  const k = [a, b].sort().join("|"), t = D.tramos[k];
+  if (t) {
+    const v = sinPeajes && t.libre ? t.libre : t;
+    return { min: v.min, km: v.km, vias: v.vias, peaje: v.peaje_km, viasPeaje: v.peaje_vias, trazado: v.trazado };
+  }
+  const c = K?.tramos[k];
+  if (!c) return null;
+  const v = sinPeajes && c[6] ? c[6] : c;
+  return { min: v[0], km: v[1], peaje: v[2], vias: v[3], viasPeaje: v[4], trazado: desplano(v[5]) };
+}
+// El catálogo guarda el trazado plano y en diferencias de medio punto (ver construir.py).
+function desplano(f) {
+  const out = [];
+  for (let i = 0, x = 0, y = 0; i < f.length; i += 2) { x += f[i]; y += f[i + 1]; out.push([x / 2, y / 2]); }
+  return out;
+}
 function conduce(a, b, sinPeajes = A.np) {
-  const t = tramo(a, b), v = sinPeajes && t.libre ? t.libre : t;
-  return { min: v.min + APARCAR + Math.floor(v.min / 120) * DESCANSO, base: v.min, km: v.km,
-           vias: v.vias, peaje: v.peaje_km, viasPeaje: v.peaje_vias, trazado: v.trazado };
+  const t = tramo(a, b, sinPeajes);
+  return t && { ...t, base: t.min, min: t.min + APARCAR + Math.floor(t.min / 120) * DESCANSO };
 }
 
 // ---------- combustible ----------
@@ -118,6 +159,7 @@ function gasto(km) {
 // por encima de 2 h ya da igual), reparto más cercano a mitad y mitad, y carretera más repartida.
 const OBJ_SAB = 21 * 60 + 30;
 function plan(st, sinPeajes = A.np) {
+  if (!st.sel.length) return null;
   let mejor = null, nota = null;
   for (const n of st.n ? [st.n] : st.sel) {
     const H = horas(st, n);
@@ -125,6 +167,7 @@ function plan(st, sinPeajes = A.np) {
              : Array.from({ length: H * 2 + 1 }, (_, i) => i / 2);
     for (const t of ts) {
       const p = calcular(st, n, t, st.m ?? Math.max(0, H - t), sinPeajes);
+      if (p.imposible) return p;  // un tramo sin ruta no lo arregla ninguna noche
       const v = [Math.min(OBJ_SAB - p.finSab, hm(A.fin) - p.llegada, 120), -Math.abs(t - H / 2),
                  -Math.abs(p.dias[0].vol - p.dias[1].vol)];
       if (!nota || v[0] > nota[0] || (v[0] === nota[0] && (v[1] > nota[1] || (v[1] === nota[1] && v[2] > nota[2])))) {
@@ -138,15 +181,17 @@ function plan(st, sinPeajes = A.np) {
 function calcular(st, n, t, m, sinPeajes) {
   const o = orden(st), ni = o.indexOf(n);
   const tramos = [["Madrid", ...o.slice(0, ni + 1)], [...o.slice(ni), "Madrid"]];
-  let km = 0, vol = 0, vis = 0, peaje = 0; const viasPeaje = new Set(), piernas = [];
+  let km = 0, vol = 0, vis = 0, peaje = 0, imposible = null; const viasPeaje = new Set(), piernas = [];
   const dias = tramos.map((seq, d) => {
     let r = hm(d ? A.s2 : A.s1), volD = 0; const filas = [];
     seq.forEach((c, j) => {
+      if (imposible) return;
       if (j === 0) {
         if (d === 1) { filas.push({ k: "visita", t: r, c, min: m * 60, nota: "manana" }); r += m * 60; vis += m * 60; }
         return;
       }
       const x = conduce(seq[j - 1], c, sinPeajes);
+      if (!x) { imposible = [seq[j - 1], c]; return; }
       filas.push({ k: "coche", t: r, de: seq[j - 1], a: c, ...x });
       r += x.min; volD += x.min; km += x.km; peaje += x.peaje; x.viasPeaje.forEach(v => viasPeaje.add(v));
       piernas.push(x.trazado);
@@ -158,14 +203,51 @@ function calcular(st, n, t, m, sinPeajes) {
     vol += volD;
     return { filas, fin: r, vol: volD };
   });
-  return { n, t, m, o, dias, km, vol, vis, peaje, viasPeaje: [...viasPeaje].sort(), piernas,
+  return { n, t, m, o, dias, km, vol, vis, peaje, viasPeaje: [...viasPeaje].sort(), piernas, imposible,
            finSab: dias[0].fin, llegada: dias[1].fin, gasolina: gasto(km) };
 }
 function estado(p) {
+  if (!p) return "vacio";
+  if (p.imposible) return "no";
   const holgura = hm(A.fin) - p.llegada;
   if (holgura < 0 || p.finSab > 24 * 60) return "no";
   if (holgura < 30 || p.finSab > LIMITE_SAB) return "justo";
   return "ok";
+}
+
+// ---------- «Tu recorrido»: dónde meter una ciudad, y el mejor orden ----------
+const minutos = (a, b) => a === b ? 0 : tramo(a, b, A.np)?.min;
+function inserta(sel, c) {   // en la posición que menos conducción añade
+  let mejor = null, coste = Infinity;
+  for (let i = 0; i <= sel.length; i++) {
+    const a = i ? sel[i - 1] : "Madrid", b = i < sel.length ? sel[i] : "Madrid";
+    const ac = minutos(a, c), cb = minutos(c, b), ab = minutos(a, b);
+    if (ac == null || cb == null) continue;
+    const d = ac + cb - (ab ?? 0);
+    if (d < coste) { coste = d; mejor = i; }
+  }
+  if (mejor === null) return null;
+  const s = [...sel]; s.splice(mejor, 0, c); return s;
+}
+function ordenMejor(sel) {   // todas las permutaciones hasta 7 ciudades (5.040); más no cabe en un finde
+  if (sel.length < 3 || sel.length > 7) return sel;
+  const largo = o => { let t = 0, a = "Madrid";
+    for (const c of [...o, "Madrid"]) { const m = minutos(a, c); if (m == null) return Infinity; t += m; a = c; } return t; };
+  let mejor = sel, min = largo(sel);
+  const permuta = (hecho, resto) => {
+    if (!resto.length) { const l = largo(hecho); if (l < min) { min = l; mejor = hecho; } return; }
+    resto.forEach((c, i) => permuta([...hecho, c], [...resto.slice(0, i), ...resto.slice(i + 1)]));
+  };
+  permuta([], sel);
+  return mejor;
+}
+// Qué supone añadir c al recorrido actual: plan resultante, tiempo extra y si cabe.
+function siAnado(c, p) {
+  const sel = inserta(S.sel, c);
+  if (!sel) return { lejos: true };
+  const q = plan({ ...S, sel, inv: false, n: S.n && sel.includes(S.n) ? S.n : null });
+  if (!q || q.imposible) return { lejos: true };
+  return { q, mas: (q.vol + q.vis) - (p ? p.vol + p.vis : 0), cabe: estado(q) !== "no" };
 }
 
 // ---------- estado en la URL (para compartir un plan) ----------
@@ -184,11 +266,13 @@ function aURL() {
   const idioma = $("#idioma");   // el otro idioma abre el mismo plan
   idioma.href = idioma.getAttribute("href").split("#")[0] + location.hash;
 }
-function deURL() {
+async function deURL() {
   const q = new URLSearchParams(location.hash.slice(1));
+  if (q.get("c") === PROPIO) await cargaCatalogo();
   S = base(q.get("c"));
-  const pool = circ(S.c).ciudades, n_ = v => (v !== null && v !== "" && !isNaN(+v) ? +v : null);
-  const sel = (q.get("s") || "").split(",").filter(c => pool.includes(c));
+  const pool = esPropio(S) ? K.lugares.filter(c => c !== "Madrid") : circ(S.c).ciudades;
+  const n_ = v => (v !== null && v !== "" && !isNaN(+v) ? +v : null);
+  const sel = [...new Set((q.get("s") || "").split(",").filter(c => pool.includes(c)))];
   if (sel.length) S.sel = sel;
   const n = q.get("n");
   if (n && S.sel.includes(n)) S.n = n;
@@ -206,37 +290,56 @@ function deURL() {
 
 // ---------- pintar ----------
 function pintar() {
-  const p = plan(S), e = estado(p);
+  const p = plan(S), e = estado(p), propio = esPropio(S);
+  for (const [id, ver_] of [["#estandar", !propio], ["#editar", !propio], ["#ordenar", propio && S.sel.length > 2],
+                            ["#vaciar", propio && S.sel.length > 0], ["#invertir", S.sel.length > 1],
+                            ["#ayuda-circ", !propio], ["#ayuda-propio", propio], ["#buscador", propio]])
+    $(id).hidden = !ver_;
   pintarCircuitos(); pintarMapa(p); pintarVeredicto(p, e); pintarCifras(p);
-  pintarCiudades(p); pintarDias(p); pintarComparar(); pintarAjustes(); aURL();
+  pintarCiudades(p); if (propio) pintarBuscador(p);
+  pintarDias(p); pintarComparar(); pintarAjustes(); aURL();
 }
 
 function pintarCircuitos() {
-  $("#circuitos").innerHTML = CIRC.map(c => {
+  const tarjetas = CIRC.map(c => {
     const p = plan(base(c.id)), e = estado(p);
     return `<button type="button" class="circ" role="radio" aria-checked="${c.id === S.c}" data-circ="${c.id}">
       <strong>${esc(nomCirc(c))}</strong>
       <small><span class="punto ${e}" aria-hidden="true"></span>${T.tarjeta(p.km, dur(p.vol), reloj(p.llegada))}</small></button>`;
-  }).join("");
+  });
+  const g = esPropio(S) ? S : propioGuardado, gp = g && g.sel.length ? plan(g) : null, ge = estado(gp);
+  const resumen = gp && !gp.imposible
+    ? `<span class="punto ${ge}" aria-hidden="true"></span>${g.sel.map(nom).map(esc).join(", ")} · ${T.casa(reloj(gp.llegada))}`
+    : T.propioVacio(D.catalogo_n);
+  tarjetas.push(`<button type="button" class="circ circ-propio" role="radio" aria-checked="${esPropio(S)}" data-circ="${PROPIO}">
+      <strong>${T.propio}</strong><small>${resumen}</small></button>`);
+  $("#circuitos").innerHTML = tarjetas.join("");
 }
 
 function pintarVeredicto(p, e) {
-  const h = hm(A.fin) - p.llegada;
   let t, sub;
-  if (e === "no" && h < 0) { t = T.noTarde(reloj(p.llegada), dur(-h)); sub = T.noTardeSub; }
-  else if (e === "no") { t = T.noSab(reloj(p.finSab)); sub = T.noSabSub; }
-  else if (p.finSab > LIMITE_SAB) { t = T.sabTarde(reloj(p.finSab)); sub = T.sabTardeSub; }
-  else if (e === "justo") { t = T.justo(reloj(p.llegada)); sub = T.justoSub(dur(h), A.fin); }
-  else { t = T.ok(reloj(p.llegada)); sub = T.okSub(dur(h), A.fin); }
+  if (!p) { t = T.vacio; sub = T.vacioSub; }
+  else if (p.imposible) { t = T.lejos(nom(p.imposible[0]), nom(p.imposible[1])); sub = T.lejosSub; }
+  else {
+    const h = hm(A.fin) - p.llegada;
+    if (e === "no" && h < 0) { t = T.noTarde(reloj(p.llegada), dur(-h)); sub = T.noTardeSub; }
+    else if (e === "no") { t = T.noSab(reloj(p.finSab)); sub = T.noSabSub; }
+    else if (p.finSab > LIMITE_SAB) { t = T.sabTarde(reloj(p.finSab)); sub = T.sabTardeSub; }
+    else if (e === "justo") { t = T.justo(reloj(p.llegada)); sub = T.justoSub(dur(h), A.fin); }
+    else { t = T.ok(reloj(p.llegada)); sub = T.okSub(dur(h), A.fin); }
+  }
   const v = $("#veredicto"); v.className = "veredicto " + e;
   v.innerHTML = `${esc(t)}<span>${esc(sub)}</span>`;
 }
 
 function pintarCifras(p) {
+  const el = $("#cifras");
+  el.hidden = !p || !!p.imposible;
+  if (el.hidden) return;
   const cel = (dt, dd, sm) => `<div><dt>${dt}</dt><dd>${dd}${sm ? `<small>${sm}</small>` : ""}</dd></div>`;
   const nota = A.coche === "media" ? T.fuelMedia
     : `${T.coches[A.coche]} · ${num(consumo(), 1)} L/100 km · ${num(precio(), 2)} €/L`;
-  $("#cifras").innerHTML =
+  el.innerHTML =
     cel(T.distancia, `${p.km} km`) +
     cel(T.carretera, dur(p.vol), `${dur(p.dias[0].vol)} + ${dur(p.dias[1].vol)}`) +
     cel(T.ciudades, dur(p.vis)) +
@@ -248,7 +351,7 @@ function pintarCifras(p) {
 function peajeNota(p) {
   if (A.np) return p.peaje ? T.inevitables : T.evitados;
   if (!p.peaje) return "";
-  const q = plan(S, true), m = q.llegada - p.llegada;
+  const q = plan(S, true), m = q && !q.imposible ? q.llegada - p.llegada : 0;
   return `${p.viasPeaje.join(", ")} · ${T.evitarlos}: ${m > 0 ? "+" + dur(m) : T.mismo}`;
 }
 
@@ -263,7 +366,7 @@ function paso(campo, c, valor, cambiado, etiqueta) {
 function bloqueNoche(p, c) {
   const tarde = p.dias[0].filas.find(f => f.k === "visita" && f.c === c && f.nota === "tarde");
   const manana = p.dias[1].filas[0];
-  const franja = (f, vacio) => f.min ? `${reloj(f.t)} – ${reloj(f.t + f.min)}` : vacio;
+  const franja = (f, vacio) => f && f.min ? `${reloj(f.t)} – ${reloj(f.t + f.min)}` : vacio;
   return `<div class="partido">
       <p class="partido-txt">${esc(T.partido(dur((p.t + p.m) * 60)))}</p>
       <div class="mitad"><div><strong>${T.tardeSab}</strong><small>${franja(tarde, T.soloCena)}</small></div>
@@ -274,10 +377,12 @@ function bloqueNoche(p, c) {
 }
 
 function pintarCiudades(p) {
-  const pool = circ(S.c).ciudades.slice(), lista = S.inv ? pool.reverse() : pool;
-  $("#ciudades").innerHTML = lista.map(c => {
-    const dentro = S.sel.includes(c), noche = c === p.n, n = p.o.indexOf(c) + 1;
-    let ctrl = "", extra = "", chip = "";
+  const propio = esPropio(S);
+  const lista = propio ? orden(S) : (S.inv ? circ(S.c).ciudades.slice().reverse() : circ(S.c).ciudades);
+  const valido = p && !p.imposible;
+  $("#ciudades").innerHTML = lista.map((c, i) => {
+    const dentro = S.sel.includes(c), noche = valido && c === p.n, n = valido ? p.o.indexOf(c) + 1 : i + 1;
+    let ctrl = "", extra = "", chip = "", izq;
     if (dentro) {
       if (noche) {
         extra = bloqueNoche(p, c);
@@ -289,11 +394,45 @@ function pintarCiudades(p) {
       const mas = (q.vol + q.vis) - (p.vol + p.vis);
       ctrl = `<span class="coste ${e === "no" ? "nocabe" : "cabe"}">+${dur(mas)}<br>${e === "no" ? T.noCabe : T.casa(reloj(q.llegada))}</span>`;
     }
+    if (propio) {  // en «Tu recorrido» no hay casilla: se quita con ✕ y se mueve con las flechas
+      izq = `<span class="mover">
+        <button type="button" data-mover="-1" data-c="${esc(c)}" aria-label="${esc(T.subir(nom(c)))}"${i === 0 ? " disabled" : ""}>↑</button>
+        <button type="button" data-mover="1" data-c="${esc(c)}" aria-label="${esc(T.bajar(nom(c)))}"${i === lista.length - 1 ? " disabled" : ""}>↓</button></span>`;
+      ctrl += `<button type="button" class="quitar" data-quitar="${esc(c)}" aria-label="${esc(T.quitar(nom(c)))}">✕</button>`;
+    } else {
+      izq = `<input type="checkbox" data-sel="${esc(c)}" ${dentro ? "checked" : ""} aria-label="${esc(T.incluir(nom(c)))}"${dentro && S.sel.length === 1 ? " disabled" : ""}>`;
+    }
     return `<li class="ciudad${dentro ? "" : " fuera"}${noche ? " noche" : ""}">
-      <input type="checkbox" data-sel="${esc(c)}" ${dentro ? "checked" : ""} aria-label="${esc(T.incluir(nom(c)))}"${dentro && S.sel.length === 1 ? " disabled" : ""}>
+      ${izq}
       <div class="nom">${dentro ? `<span class="num">${n}</span>` : ""}${esc(nom(c))}<small>${esc(reg(c))}</small></div>
       <div class="ctrl">${ctrl}</div>
       ${chip}<p class="ver">${esc(ver(c))}</p>${extra}</li>`;
+  }).join("");
+}
+
+// Buscador de «Tu recorrido»: con texto, lo que coincide; sin texto, lo que mejor te pilla de camino.
+function pintarBuscador(p) {
+  const texto = plano($("#buscar").value.trim());
+  const libres = K.lugares.filter(c => c !== "Madrid" && !S.sel.includes(c));
+  let filas, titulo;
+  if (texto) {
+    const coinciden = libres.filter(c => plano(nom(c)).includes(texto) || plano(c).includes(texto) || plano(reg(c)).includes(texto))
+      .sort((a, b) => plano(nom(a)).startsWith(texto) === plano(nom(b)).startsWith(texto)
+        ? nom(a).localeCompare(nom(b)) : plano(nom(a)).startsWith(texto) ? -1 : 1);
+    titulo = T.resultados(coinciden.length);
+    filas = coinciden.slice(0, 8).map(c => [c, siAnado(c, p)]);
+  } else {
+    titulo = p ? T.sugerencias : T.sugerenciasVacio;
+    filas = libres.map(c => [c, siAnado(c, p)]).filter(([, r]) => r.cabe)
+      .sort((a, b) => a[1].mas - b[1].mas).slice(0, 6);
+  }
+  $("#sug-tit").textContent = titulo;
+  $("#resultados").innerHTML = filas.map(([c, r]) => {
+    const coste = r.lejos ? `<span class="nocabe">${T.demasiadoLejos}</span>`
+      : `<span class="${r.cabe ? "cabe" : "nocabe"}">+${dur(r.mas)} · ${r.cabe ? T.casa(reloj(r.q.llegada)) : T.noCabe}</span>`;
+    return `<li><button type="button" class="res" data-anadir="${esc(c)}"${r.lejos ? " disabled" : ""}>
+      <span class="res-nom">${esc(nom(c))} <small>${esc(reg(c))}</small><span class="res-ver">${esc(ver(c))}</span></span>
+      <span class="res-coste">${coste}</span></button></li>`;
   }).join("");
 }
 
@@ -301,6 +440,7 @@ function badgeVias(vias, ap) {
   return vias.map(v => `<span class="via${ap.includes(v) ? " ap" : ""}">${esc(v)}</span>`).join("");
 }
 function pintarDias(p) {
+  if (!p || p.imposible) { $("#dias").innerHTML = ""; return; }
   $("#dias").innerHTML = p.dias.map((d, i) => {
     const filas = d.filas.map(f => f.k === "coche"
       ? `<li class="coche"><time>${reloj(f.t)}</time><span class="que">${esc(nom(f.de))} → ${esc(nom(f.a))}${badgeVias(f.vias, f.viasPeaje)}<span class="etq">${f.km} km</span>${f.peaje ? `<span class="peaje">${T.peajeKm(f.peaje)}</span>` : ""}</span><span class="dur">${dur(f.min)}</span></li>`
@@ -339,9 +479,10 @@ function pintarAjustes() {
 
 // ---------- mapa ----------
 function pintarMapa(p) {
-  const pool = circ(S.c).ciudades;
+  const pool = esPropio(S) ? S.sel : circ(S.c).ciudades;
+  const piernas = p && !p.imposible ? p.piernas : [];
   const pts = [C.Madrid.xy, ...pool.map(c => C[c].xy)];
-  p.piernas.forEach(t => t.forEach(q => pts.push(q)));
+  piernas.forEach(t => t.forEach(q => pts.push(q)));
   let x0 = Math.min(...pts.map(q => q[0])), x1 = Math.max(...pts.map(q => q[0]));
   let y0 = Math.min(...pts.map(q => q[1])), y1 = Math.max(...pts.map(q => q[1]));
   const ratio = 1.15, pad = 0.18;
@@ -354,7 +495,7 @@ function pintarMapa(p) {
   let s = "";
   for (const [iso, d] of Object.entries(D.mapa.paises))
     s += `<path d="${d}" fill="var(${iso === "ESP" ? "--tierra" : "--tierra-otra"})" stroke="var(--borde)" stroke-width="${0.9 * k}" stroke-linejoin="round"/>`;
-  const linea = p.piernas.map(t => `<polyline points="${t.map(q => q.join(",")).join(" ")}"/>`).join("");
+  const linea = piernas.map(t => `<polyline points="${t.map(q => q.join(",")).join(" ")}"/>`).join("");
   s += `<g fill="none" stroke-linejoin="round" stroke-linecap="round"><g stroke="var(--surface)" stroke-width="${6.5 * k}">${linea}</g><g stroke="var(--via)" stroke-width="${3.4 * k}">${linea}</g></g>`;
 
   const fs = 14 * k, ocupado = [];
@@ -376,12 +517,12 @@ function pintarMapa(p) {
     return `<text x="${elegido[0]}" y="${elegido[1]}" text-anchor="${elegido[2]}" class="${clase}" font-size="${fs}" paint-order="stroke" stroke="var(--tierra)" stroke-width="${3 * k}" stroke-linejoin="round">${esc(txt)}</text>`;
   };
   // Primero se reservan los puntos, después se colocan los nombres sin pisarlos.
-  const marcas = [], textos = [];
+  const marcas = [], textos = [], o = p && !p.imposible ? p.o : orden(S);
   const [mx, my] = C.Madrid.xy;
   ocupado.push([mx - 8 * k, my - 8 * k, mx + 8 * k, my + 8 * k]);
   marcas.push(`<rect x="${mx - 6 * k}" y="${my - 6 * k}" width="${12 * k}" height="${12 * k}" fill="var(--ink)" transform="rotate(45 ${mx} ${my})"/>`);
   pool.forEach(c => {
-    const [x, y] = C[c].xy, i = p.o.indexOf(c), r = (i >= 0 ? 10 : 5) * k;
+    const [x, y] = C[c].xy, i = o.indexOf(c), r = (i >= 0 ? 10 : 5) * k;
     ocupado.push([x - r, y - r, x + r, y + r]);
     marcas.push(i >= 0
       ? `<circle cx="${x}" cy="${y}" r="${r}" fill="var(--via)" stroke="var(--surface)" stroke-width="${2 * k}"/><text x="${x}" y="${y + 4 * k}" text-anchor="middle" font-size="${11 * k}" font-weight="600" fill="var(--via-ink)">${i + 1}</text>`
@@ -389,18 +530,41 @@ function pintarMapa(p) {
   });
   textos.push(rotulo(mx, my, "Madrid", 8 * k, "rot rot-madrid"));
   pool.forEach(c => {
-    const [x, y] = C[c].xy, i = p.o.indexOf(c);
-    textos.push(rotulo(x, y, nom(c) + (c === p.n ? " ☾" : ""), (i >= 0 ? 10 : 5) * k, i >= 0 ? "rot" : "rot rot-fuera"));
+    const [x, y] = C[c].xy, i = o.indexOf(c);
+    textos.push(rotulo(x, y, nom(c) + (p && c === p.n ? " ☾" : ""), (i >= 0 ? 10 : 5) * k, i >= 0 ? "rot" : "rot rot-fuera"));
   });
   svg.innerHTML = s + marcas.join("") + textos.join("");
 }
 
 // ---------- eventos ----------
+async function irA(id, estado_) {
+  if (esPropio(S)) propioGuardado = S;
+  if (id === PROPIO) await cargaCatalogo();
+  S = estado_ ?? (id === PROPIO && propioGuardado ? propioGuardado : base(id));
+  pintar();
+}
 document.addEventListener("click", ev => {
-  const b = ev.target.closest("[data-circ],[data-paso],[data-noche]");
+  const b = ev.target.closest("[data-circ],[data-paso],[data-noche],[data-anadir],[data-quitar],[data-mover]");
   if (!b) return;
-  if (b.dataset.circ) { S = base(b.dataset.circ); pintar(); return; }
+  if (b.dataset.circ) { irA(b.dataset.circ); return; }
   if (b.dataset.noche) { S.n = S.n === b.dataset.noche ? null : b.dataset.noche; S.t = S.m = null; pintar(); return; }
+  if (b.dataset.anadir) {
+    const sel = inserta(S.sel, b.dataset.anadir);
+    if (sel) { S.sel = sel; S.t = S.m = null; $("#buscar").value = ""; pintar(); $("#buscar").focus(); }
+    return;
+  }
+  if (b.dataset.quitar) {
+    const c = b.dataset.quitar;
+    S.sel = S.sel.filter(x => x !== c); delete S.h[c];
+    if (S.n === c) S.n = null;
+    S.t = S.m = null; pintar(); return;
+  }
+  if (b.dataset.mover) {   // las flechas mueven en el orden que se VE (con el sentido invertido, al revés)
+    const vista = orden(S), i = vista.indexOf(b.dataset.c), j = i + +b.dataset.mover;
+    if (j < 0 || j >= vista.length) return;
+    [vista[i], vista[j]] = [vista[j], vista[i]];
+    S.sel = S.inv ? vista.reverse() : vista; S.t = S.m = null; pintar(); return;
+  }
   const c = b.dataset.c, d = +b.dataset.paso * 0.5, campo = b.dataset.campo;
   if (campo === "h") S.h[c] = Math.max(0.5, Math.min(12, horas(S, c) + d));
   else {  // al tocar una mitad se fijan las dos, para que la otra no se recoloque sola
@@ -416,13 +580,23 @@ $("#ciudades").addEventListener("change", ev => {
 });
 $("#invertir").addEventListener("click", () => { S.inv = !S.inv; pintar(); });
 $("#estandar").addEventListener("click", () => { S = base(S.c); pintar(); });
+$("#editar").addEventListener("click", () => {   // el circuito actual pasa a ser «Tu recorrido», editable
+  const copia = { ...S, c: PROPIO, sel: orden(S), inv: false, h: { ...S.h } };
+  irA(PROPIO, copia);
+});
+$("#ordenar").addEventListener("click", () => { S.sel = ordenMejor(S.sel); S.inv = false; S.t = S.m = null; pintar(); });
+$("#vaciar").addEventListener("click", () => { S = base(PROPIO); pintar(); });
+$("#buscar").addEventListener("input", () => pintarBuscador(plan(S)));
+$("#buscar").addEventListener("keydown", ev => {
+  if (ev.key !== "Enter") return;
+  ev.preventDefault();
+  $("#resultados button:not([disabled])")?.click();
+});
 for (const k of ["s1", "s2", "fin"]) {
   const el = $("#" + k); el.value = A[k];
   el.addEventListener("input", () => { if (el.value) { A[k] = el.value; pintar(); } });
 }
-$("#np").checked = A.np;
 $("#np").addEventListener("change", () => { A.np = $("#np").checked; pintar(); });
-$("#coche").value = A.coche;
 $("#coche").addEventListener("change", () => { A.coche = $("#coche").value; A.l = A.p = null; pintar(); });
 for (const k of ["l", "p"]) $("#" + k).addEventListener("input", ev => {
   const v = ev.target.value.replace(",", ".");
@@ -437,9 +611,13 @@ $("#compartir").addEventListener("click", async () => {
   t.textContent = ok ? T.copiado : T.copiaTu;
   document.body.append(t); setTimeout(() => t.remove(), 2600);
 });
+$("#portada").innerHTML = T.portada(CIRC.length, D.catalogo_n, D.catalogo_regiones);
 $("#fuera").innerHTML = `<strong>${T.fueraTit}</strong> ${esc(EN ? D.fuera_en : D.fuera)}`;
 $("#pie-combustible").innerHTML = T.fuelPie({ ...D.precios, fecha: EN ? D.precios.fecha.split("/").reverse().join("-") : D.precios.fecha.replaceAll("/", "-") }, num);
 $("#generado").textContent = T.generado(EN ? D.generado : D.generado.split("-").reverse().join("-"));
 
-deURL();
+await deURL();
+for (const k of ["s1", "s2", "fin"]) $("#" + k).value = A[k];
+$("#np").checked = A.np;
+$("#coche").value = A.coche;
 pintar();

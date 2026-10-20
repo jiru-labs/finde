@@ -160,3 +160,37 @@ td.tarde{color:var(--mal);font-weight:600}
 /* Ajustes: selector de coche y campos apagados con «media» */
 .ajustes select{font:400 15px/1.2 var(--f-texto);text-transform:none;letter-spacing:0;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:5px 8px}
 .ajustes input:disabled{opacity:.55}
+
+/* «Tu recorrido» */
+.circ-propio{border-style:dashed;border-color:var(--via)}
+.circ-propio strong::before{content:"✎ "}
+.buscador{display:grid;gap:8px;margin-bottom:12px}
+.buscador input{font:400 16px/1.3 var(--f-texto);color:var(--ink);background:var(--surface);border:1.5px solid var(--via);border-radius:8px;padding:10px 12px;width:100%}
+.sug-tit{margin:2px 0 0;font-size:13.5px;color:var(--muted)}
+.resultados{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.res{all:unset;box-sizing:border-box;width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer}
+.res:hover:not([disabled]),.res:focus-visible{border-color:var(--via);outline:none;box-shadow:0 0 0 2px color-mix(in srgb,var(--via) 25%,transparent)}
+.res[disabled]{cursor:default;opacity:.6}
+.res-nom{font:700 17px/1.2 var(--f-rotulo);letter-spacing:.01em;min-width:0}
+.res-nom small{font:400 13px/1 var(--f-texto);color:var(--muted);margin-left:4px}
+.res-ver{display:block;font:400 13px/1.35 var(--f-texto);color:var(--muted);margin-top:2px}
+.res-coste{font-size:13.5px;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.res-coste .cabe{color:var(--ok)} .res-coste .nocabe{color:var(--mal)}
+.mover{display:grid;gap:2px}
+.mover button,.quitar{border:1px solid var(--line);background:var(--surface);border-radius:5px;width:26px;height:22px;cursor:pointer;font-size:13px;line-height:1;padding:0;color:var(--ink)}
+.mover button[disabled]{opacity:.3;cursor:default}
+.quitar{width:30px;height:30px;font-size:14px}
+.quitar:hover{border-color:var(--mal);color:var(--mal)}
+[hidden]{display:none!important}
+@media (max-width:460px){.res{flex-direction:column;align-items:flex-start}.res-coste{text-align:left}}
+
+/* Portada */
+.cab{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:20px 40px;align-items:end}
+@media (max-width:900px){.cab{grid-template-columns:1fr}}
+.kicker{margin:0 0 8px;font:600 14px/1.2 var(--f-rotulo);text-transform:uppercase;letter-spacing:.1em;color:var(--via)}
+.cab h1{font-size:clamp(34px,6vw,58px);max-width:18ch}
+.portada{margin:14px 0 0;font-size:15px;color:var(--muted)}
+.portada b{font:700 19px/1 var(--f-rotulo);color:var(--ink)}
+.ventajas{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.ventajas li{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--via);border-radius:6px;padding:10px 14px;font-size:14.5px;color:var(--muted)}
+.ventajas strong{display:block;font:700 18px/1.2 var(--f-rotulo);color:var(--ink);letter-spacing:.01em}

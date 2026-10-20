@@ -1,57 +1,875 @@
 {
-  "_nota": "Editorial. 'coord' [lat, lon] fija el punto a mano cuando Wikidata no marca el casco (Olite: 4 km al sur; Gijón: 2 km). 'horas' = lo que suele llevar ver lo esencial a pie, comida incluida si te pilla allí. 'busqueda' = consulta para Nominatim (solo la usa herramientas/descargar.py).",
-  "Madrid":            {"region": "Comunidad de Madrid", "horas": 0,   "ver": "Salida y llegada (Puerta del Sol, km 0)", "busqueda": "Puerta del Sol, Madrid", "punto_exacto": true},
-  "Segovia":           {"region": "Castilla y León", "horas": 4,   "ver": "Acueducto, Catedral, Alcázar"},
-  "Ávila":             {"region": "Castilla y León", "horas": 2.5, "ver": "Paseo de la muralla, Catedral, convento de Santa Teresa"},
-  "Salamanca":         {"region": "Castilla y León", "horas": 5,   "ver": "Plaza Mayor, Universidad, las dos catedrales, Casa de las Conchas"},
-  "Zamora":            {"region": "Castilla y León", "horas": 2.5, "ver": "Catedral, iglesias románicas, murallas sobre el Duero"},
-  "Valladolid":        {"region": "Castilla y León", "horas": 3,   "ver": "Museo Nacional de Escultura, Plaza Mayor, Catedral"},
-  "Palencia":          {"region": "Castilla y León", "horas": 2,   "ver": "Catedral («la Bella Desconocida»), calle Mayor"},
-  "León":              {"region": "Castilla y León", "horas": 3.5, "ver": "Catedral y sus vidrieras, San Isidoro, Barrio Húmedo, Casa Botines"},
-  "Burgos":            {"region": "Castilla y León", "horas": 3,   "ver": "Catedral, paseo del Espolón, Arco de Santa María"},
-  "Lerma":             {"region": "Castilla y León", "horas": 1.5, "ver": "Plaza Ducal y Palacio Ducal"},
-  "Soria":             {"region": "Castilla y León", "horas": 2.5, "ver": "San Juan de Duero, ermita de San Saturio, románico"},
-  "Vitoria-Gasteiz":   {"region": "País Vasco", "horas": 3,   "ver": "Casco medieval, Catedral de Santa María, plaza de la Virgen Blanca", "busqueda": "Vitoria-Gasteiz, Álava"},
-  "Bilbao":            {"region": "País Vasco", "horas": 5,   "ver": "Guggenheim, Casco Viejo, paseo de la ría"},
-  "Getaria":           {"region": "País Vasco", "horas": 1.5, "ver": "Puerto, iglesia de San Salvador, txakoli"},
-  "San Sebastián":     {"region": "País Vasco", "horas": 4,   "ver": "La Concha, Parte Vieja y pintxos, monte Urgull", "busqueda": "Donostia-San Sebastián"},
-  "Haro":              {"region": "La Rioja", "horas": 2.5, "ver": "Barrio de la Estación y visita a una bodega"},
-  "Laguardia":         {"region": "País Vasco", "horas": 2,   "ver": "Villa amurallada, pórtico de Santa María, bodegas", "busqueda": "Laguardia, Álava"},
-  "Logroño":           {"region": "La Rioja", "horas": 3,   "ver": "Calle Laurel, Concatedral de la Redonda, casco antiguo"},
-  "Pamplona":          {"region": "Navarra", "horas": 3.5, "ver": "Casco viejo, plaza del Castillo, Catedral, Ciudadela"},
-  "Olite":             {"region": "Navarra", "horas": 1.5, "ver": "Palacio Real de Olite", "busqueda": "Olite, Navarra", "coord": [42.4826, -1.6511]},
-  "Tudela":            {"region": "Navarra", "horas": 1.5, "ver": "Catedral, casco antiguo", "busqueda": "Tudela, Navarra"},
-  "Oviedo":            {"region": "Asturias", "horas": 3.5, "ver": "Catedral, casco antiguo, prerrománico del Naranco"},
-  "Gijón":             {"region": "Asturias", "horas": 3,   "ver": "Cimadevilla, playa de San Lorenzo, Universidad Laboral", "coord": [43.5453, -5.6620]},
-  "Cangas de Onís":    {"region": "Asturias", "horas": 3,   "ver": "Puente romano y Covadonga (sin subir a los Lagos)"},
-  "Santander":         {"region": "Cantabria", "horas": 3.5, "ver": "Palacio de la Magdalena, el Sardinero, Centro Botín"},
-  "Santillana del Mar":{"region": "Cantabria", "horas": 2,   "ver": "Villa medieval y Colegiata (Altamira aparte)"},
-  "Comillas":          {"region": "Cantabria", "horas": 2,   "ver": "El Capricho de Gaudí, Universidad Pontificia"},
-  "San Vicente de la Barquera": {"region": "Cantabria", "horas": 1.5, "ver": "Puebla vieja, puente de la Maza, vistas a los Picos"},
-  "Córdoba":           {"region": "Andalucía", "horas": 4.5, "ver": "Mezquita-Catedral, Judería, Alcázar de los Reyes Cristianos", "busqueda": "Córdoba, Andalucía"},
-  "Carmona":           {"region": "Andalucía", "horas": 2,   "ver": "Puerta de Sevilla, casco antiguo, necrópolis romana"},
-  "Sevilla":           {"region": "Andalucía", "horas": 6,   "ver": "Catedral y Giralda, Real Alcázar, barrio de Santa Cruz, plaza de España"},
-  "Baeza":             {"region": "Andalucía", "horas": 2,   "ver": "Plaza del Pópulo, Catedral, antigua Universidad"},
-  "Úbeda":             {"region": "Andalucía", "horas": 3,   "ver": "Plaza Vázquez de Molina, Sacra Capilla del Salvador"},
-  "Granada":           {"region": "Andalucía", "horas": 6,   "ver": "Alhambra (entrada con hora, reservar), Albaicín, Capilla Real"},
-  "Jaén":              {"region": "Andalucía", "horas": 2.5, "ver": "Catedral, castillo de Santa Catalina, baños árabes"},
-  "Zafra":             {"region": "Extremadura", "horas": 1.5, "ver": "Plaza Grande y plaza Chica, Alcázar"},
-  "Mérida":            {"region": "Extremadura", "horas": 3,   "ver": "Teatro y anfiteatro romanos, Museo de Arte Romano, puente romano"},
-  "Trujillo":          {"region": "Extremadura", "horas": 2,   "ver": "Plaza Mayor, castillo, casas de conquistadores"},
-  "Cáceres":           {"region": "Extremadura", "horas": 3,   "ver": "Ciudad monumental intramuros"},
-  "Plasencia":         {"region": "Extremadura", "horas": 2,   "ver": "Las dos catedrales, Plaza Mayor"},
-  "Guadalupe":         {"region": "Extremadura", "horas": 2,   "ver": "Real Monasterio de Santa María", "busqueda": "Guadalupe, Cáceres"},
-  "Toledo":            {"region": "Castilla-La Mancha", "horas": 5, "ver": "Catedral, Judería, Santo Tomé (El Greco), Alcázar"},
-  "Consuegra":         {"region": "Castilla-La Mancha", "horas": 1.5, "ver": "Molinos y castillo"},
-  "Almagro":           {"region": "Castilla-La Mancha", "horas": 2, "ver": "Plaza Mayor, Corral de Comedias"},
-  "Cuenca":            {"region": "Castilla-La Mancha", "horas": 3.5, "ver": "Casas Colgadas, Catedral, hoces del Huécar"},
-  "Sigüenza":          {"region": "Castilla-La Mancha", "horas": 2, "ver": "Catedral, castillo, Plaza Mayor"},
-  "Aranjuez":          {"region": "Comunidad de Madrid", "horas": 2.5, "ver": "Palacio Real y jardines"},
-  "Chinchón":          {"region": "Comunidad de Madrid", "horas": 1.5, "ver": "Plaza Mayor"},
-  "Valencia":          {"region": "Comunitat Valenciana", "horas": 6, "ver": "Ciutat Vella, Catedral y Micalet, Lonja, Mercado Central, Ciudad de las Artes", "busqueda": "Valencia, España"},
-  "Xàtiva":            {"region": "Comunitat Valenciana", "horas": 2, "ver": "Castillo y casco antiguo"},
-  "Alicante":          {"region": "Comunitat Valenciana", "horas": 3, "ver": "Castillo de Santa Bárbara, Explanada, barrio de Santa Cruz", "busqueda": "Alicante, España"},
-  "Zaragoza":          {"region": "Aragón", "horas": 4, "ver": "Basílica del Pilar, La Seo, Aljafería"},
-  "Teruel":            {"region": "Aragón", "horas": 2.5, "ver": "Torres mudéjares, Catedral, Amantes de Teruel"},
-  "Albarracín":        {"region": "Aragón", "horas": 2.5, "ver": "Villa medieval y murallas"}
+ "_nota": "Editorial. 'coord' [lat, lon] fija el punto a mano cuando Wikidata no marca el casco (Olite: 4 km al sur; Gijón: 2 km). 'horas' = lo que suele llevar ver lo esencial a pie, comida incluida si te pilla allí. 'busqueda' = consulta para Nominatim (solo la usa herramientas/descargar.py).",
+ "Madrid": {
+  "region": "Comunidad de Madrid",
+  "horas": 0,
+  "ver": "Salida y llegada (Puerta del Sol, km 0)",
+  "busqueda": "Puerta del Sol, Madrid",
+  "punto_exacto": true
+ },
+ "Segovia": {
+  "region": "Castilla y León",
+  "horas": 4,
+  "ver": "Acueducto, Catedral, Alcázar"
+ },
+ "Ávila": {
+  "region": "Castilla y León",
+  "horas": 2.5,
+  "ver": "Paseo de la muralla, Catedral, convento de Santa Teresa"
+ },
+ "Salamanca": {
+  "region": "Castilla y León",
+  "horas": 5,
+  "ver": "Plaza Mayor, Universidad, las dos catedrales, Casa de las Conchas"
+ },
+ "Zamora": {
+  "region": "Castilla y León",
+  "horas": 2.5,
+  "ver": "Catedral, iglesias románicas, murallas sobre el Duero"
+ },
+ "Valladolid": {
+  "region": "Castilla y León",
+  "horas": 3,
+  "ver": "Museo Nacional de Escultura, Plaza Mayor, Catedral"
+ },
+ "Palencia": {
+  "region": "Castilla y León",
+  "horas": 2,
+  "ver": "Catedral («la Bella Desconocida»), calle Mayor"
+ },
+ "León": {
+  "region": "Castilla y León",
+  "horas": 3.5,
+  "ver": "Catedral y sus vidrieras, San Isidoro, Barrio Húmedo, Casa Botines"
+ },
+ "Burgos": {
+  "region": "Castilla y León",
+  "horas": 3,
+  "ver": "Catedral, paseo del Espolón, Arco de Santa María"
+ },
+ "Lerma": {
+  "region": "Castilla y León",
+  "horas": 1.5,
+  "ver": "Plaza Ducal y Palacio Ducal"
+ },
+ "Soria": {
+  "region": "Castilla y León",
+  "horas": 2.5,
+  "ver": "San Juan de Duero, ermita de San Saturio, románico"
+ },
+ "Vitoria-Gasteiz": {
+  "region": "País Vasco",
+  "horas": 3,
+  "ver": "Casco medieval, Catedral de Santa María, plaza de la Virgen Blanca",
+  "busqueda": "Vitoria-Gasteiz, Álava"
+ },
+ "Bilbao": {
+  "region": "País Vasco",
+  "horas": 5,
+  "ver": "Guggenheim, Casco Viejo, paseo de la ría"
+ },
+ "Getaria": {
+  "region": "País Vasco",
+  "horas": 1.5,
+  "ver": "Puerto, iglesia de San Salvador, txakoli"
+ },
+ "San Sebastián": {
+  "region": "País Vasco",
+  "horas": 4,
+  "ver": "La Concha, Parte Vieja y pintxos, monte Urgull",
+  "busqueda": "Donostia-San Sebastián"
+ },
+ "Haro": {
+  "region": "La Rioja",
+  "horas": 2.5,
+  "ver": "Barrio de la Estación y visita a una bodega"
+ },
+ "Laguardia": {
+  "region": "País Vasco",
+  "horas": 2,
+  "ver": "Villa amurallada, pórtico de Santa María, bodegas",
+  "busqueda": "Laguardia, Álava"
+ },
+ "Logroño": {
+  "region": "La Rioja",
+  "horas": 3,
+  "ver": "Calle Laurel, Concatedral de la Redonda, casco antiguo"
+ },
+ "Pamplona": {
+  "region": "Navarra",
+  "horas": 3.5,
+  "ver": "Casco viejo, plaza del Castillo, Catedral, Ciudadela"
+ },
+ "Olite": {
+  "region": "Navarra",
+  "horas": 1.5,
+  "ver": "Palacio Real de Olite",
+  "busqueda": "Olite, Navarra",
+  "coord": [
+   42.4826,
+   -1.6511
+  ]
+ },
+ "Tudela": {
+  "region": "Navarra",
+  "horas": 1.5,
+  "ver": "Catedral, casco antiguo",
+  "busqueda": "Tudela, Navarra"
+ },
+ "Oviedo": {
+  "region": "Asturias",
+  "horas": 3.5,
+  "ver": "Catedral, casco antiguo, prerrománico del Naranco"
+ },
+ "Gijón": {
+  "region": "Asturias",
+  "horas": 3,
+  "ver": "Cimadevilla, playa de San Lorenzo, Universidad Laboral",
+  "coord": [
+   43.5453,
+   -5.662
+  ]
+ },
+ "Cangas de Onís": {
+  "region": "Asturias",
+  "horas": 3,
+  "ver": "Puente romano y Covadonga (sin subir a los Lagos)"
+ },
+ "Santander": {
+  "region": "Cantabria",
+  "horas": 3.5,
+  "ver": "Palacio de la Magdalena, el Sardinero, Centro Botín"
+ },
+ "Santillana del Mar": {
+  "region": "Cantabria",
+  "horas": 2,
+  "ver": "Villa medieval y Colegiata (Altamira aparte)"
+ },
+ "Comillas": {
+  "region": "Cantabria",
+  "horas": 2,
+  "ver": "El Capricho de Gaudí, Universidad Pontificia"
+ },
+ "San Vicente de la Barquera": {
+  "region": "Cantabria",
+  "horas": 1.5,
+  "ver": "Puebla vieja, puente de la Maza, vistas a los Picos"
+ },
+ "Córdoba": {
+  "region": "Andalucía",
+  "horas": 4.5,
+  "ver": "Mezquita-Catedral, Judería, Alcázar de los Reyes Cristianos",
+  "busqueda": "Córdoba, Andalucía"
+ },
+ "Carmona": {
+  "region": "Andalucía",
+  "horas": 2,
+  "ver": "Puerta de Sevilla, casco antiguo, necrópolis romana"
+ },
+ "Sevilla": {
+  "region": "Andalucía",
+  "horas": 6,
+  "ver": "Catedral y Giralda, Real Alcázar, barrio de Santa Cruz, plaza de España"
+ },
+ "Baeza": {
+  "region": "Andalucía",
+  "horas": 2,
+  "ver": "Plaza del Pópulo, Catedral, antigua Universidad"
+ },
+ "Úbeda": {
+  "region": "Andalucía",
+  "horas": 3,
+  "ver": "Plaza Vázquez de Molina, Sacra Capilla del Salvador"
+ },
+ "Granada": {
+  "region": "Andalucía",
+  "horas": 6,
+  "ver": "Alhambra (entrada con hora, reservar), Albaicín, Capilla Real"
+ },
+ "Jaén": {
+  "region": "Andalucía",
+  "horas": 2.5,
+  "ver": "Catedral, castillo de Santa Catalina, baños árabes"
+ },
+ "Zafra": {
+  "region": "Extremadura",
+  "horas": 1.5,
+  "ver": "Plaza Grande y plaza Chica, Alcázar"
+ },
+ "Mérida": {
+  "region": "Extremadura",
+  "horas": 3,
+  "ver": "Teatro y anfiteatro romanos, Museo de Arte Romano, puente romano"
+ },
+ "Trujillo": {
+  "region": "Extremadura",
+  "horas": 2,
+  "ver": "Plaza Mayor, castillo, casas de conquistadores"
+ },
+ "Cáceres": {
+  "region": "Extremadura",
+  "horas": 3,
+  "ver": "Ciudad monumental intramuros"
+ },
+ "Plasencia": {
+  "region": "Extremadura",
+  "horas": 2,
+  "ver": "Las dos catedrales, Plaza Mayor"
+ },
+ "Guadalupe": {
+  "region": "Extremadura",
+  "horas": 2,
+  "ver": "Real Monasterio de Santa María",
+  "busqueda": "Guadalupe, Cáceres"
+ },
+ "Toledo": {
+  "region": "Castilla-La Mancha",
+  "horas": 5,
+  "ver": "Catedral, Judería, Santo Tomé (El Greco), Alcázar"
+ },
+ "Consuegra": {
+  "region": "Castilla-La Mancha",
+  "horas": 1.5,
+  "ver": "Molinos y castillo"
+ },
+ "Almagro": {
+  "region": "Castilla-La Mancha",
+  "horas": 2,
+  "ver": "Plaza Mayor, Corral de Comedias"
+ },
+ "Cuenca": {
+  "region": "Castilla-La Mancha",
+  "horas": 3.5,
+  "ver": "Casas Colgadas, Catedral, hoces del Huécar"
+ },
+ "Sigüenza": {
+  "region": "Castilla-La Mancha",
+  "horas": 2,
+  "ver": "Catedral, castillo, Plaza Mayor"
+ },
+ "Aranjuez": {
+  "region": "Comunidad de Madrid",
+  "horas": 2.5,
+  "ver": "Palacio Real y jardines"
+ },
+ "Chinchón": {
+  "region": "Comunidad de Madrid",
+  "horas": 1.5,
+  "ver": "Plaza Mayor"
+ },
+ "Valencia": {
+  "region": "Comunitat Valenciana",
+  "horas": 6,
+  "ver": "Ciutat Vella, Catedral y Micalet, Lonja, Mercado Central, Ciudad de las Artes",
+  "busqueda": "Valencia, España"
+ },
+ "Xàtiva": {
+  "region": "Comunitat Valenciana",
+  "horas": 2,
+  "ver": "Castillo y casco antiguo"
+ },
+ "Alicante": {
+  "region": "Comunitat Valenciana",
+  "horas": 3,
+  "ver": "Castillo de Santa Bárbara, Explanada, barrio de Santa Cruz",
+  "busqueda": "Alicante, España"
+ },
+ "Zaragoza": {
+  "region": "Aragón",
+  "horas": 4,
+  "ver": "Basílica del Pilar, La Seo, Aljafería"
+ },
+ "Teruel": {
+  "region": "Aragón",
+  "horas": 2.5,
+  "ver": "Torres mudéjares, Catedral, Amantes de Teruel"
+ },
+ "Albarracín": {
+  "region": "Aragón",
+  "horas": 2.5,
+  "ver": "Villa medieval y murallas"
+ },
+ "Astorga": {
+  "region": "Castilla y León",
+  "horas": 2,
+  "ver": "Palacio Episcopal de Gaudí, Catedral, murallas"
+ },
+ "Ponferrada": {
+  "region": "Castilla y León",
+  "horas": 2,
+  "ver": "Castillo templario, casco antiguo"
+ },
+ "Villafranca del Bierzo": {
+  "region": "Castilla y León",
+  "horas": 1.5,
+  "ver": "Calle del Agua, iglesia de Santiago"
+ },
+ "Puebla de Sanabria": {
+  "region": "Castilla y León",
+  "horas": 2,
+  "ver": "Villa medieval y castillo; el lago de Sanabria cerca"
+ },
+ "Toro": {
+  "region": "Castilla y León",
+  "horas": 1.5,
+  "ver": "Colegiata, mirador sobre el Duero, bodegas",
+  "busqueda": "Toro, Zamora"
+ },
+ "Ciudad Rodrigo": {
+  "region": "Castilla y León",
+  "horas": 2,
+  "ver": "Murallas, Catedral, Plaza Mayor"
+ },
+ "La Alberca": {
+  "region": "Castilla y León",
+  "horas": 2,
+  "ver": "Pueblo serrano de entramado, Peña de Francia cerca"
+ },
+ "Medina del Campo": {
+  "region": "Castilla y León",
+  "horas": 1.5,
+  "ver": "Castillo de la Mota, Plaza Mayor"
+ },
+ "Tordesillas": {
+  "region": "Castilla y León",
+  "horas": 1.5,
+  "ver": "Monasterio de Santa Clara, Casas del Tratado"
+ },
+ "Peñafiel": {
+  "region": "Castilla y León",
+  "horas": 2,
+  "ver": "Castillo y Museo del Vino, plaza del Coso, bodegas"
+ },
+ "Arévalo": {
+  "region": "Castilla y León",
+  "horas": 1.5,
+  "ver": "Plazas mudéjares, castillo"
+ },
+ "Pedraza": {
+  "region": "Castilla y León",
+  "horas": 1.5,
+  "ver": "Villa amurallada, Plaza Mayor, castillo",
+  "busqueda": "Pedraza, Segovia"
+ },
+ "Sepúlveda": {
+  "region": "Castilla y León",
+  "horas": 2,
+  "ver": "Villa medieval y hoces del Duratón"
+ },
+ "La Granja de San Ildefonso": {
+  "region": "Castilla y León",
+  "horas": 2.5,
+  "ver": "Palacio Real y jardines con fuentes",
+  "busqueda": "Real Sitio de San Ildefonso"
+ },
+ "El Burgo de Osma": {
+  "region": "Castilla y León",
+  "horas": 1.5,
+  "ver": "Catedral, calle Mayor porticada"
+ },
+ "Medinaceli": {
+  "region": "Castilla y León",
+  "horas": 1.5,
+  "ver": "Arco romano, Plaza Mayor, colegiata"
+ },
+ "Calatañazor": {
+  "region": "Castilla y León",
+  "horas": 1,
+  "ver": "Aldea medieval de piedra y castillo"
+ },
+ "Covarrubias": {
+  "region": "Castilla y León",
+  "horas": 1.5,
+  "ver": "Villa de entramado, Torreón de Fernán González"
+ },
+ "Santo Domingo de Silos": {
+  "region": "Castilla y León",
+  "horas": 1.5,
+  "ver": "Claustro románico del monasterio, canto gregoriano"
+ },
+ "Frías": {
+  "region": "Castilla y León",
+  "horas": 1.5,
+  "ver": "Castillo sobre la roca, casas colgadas, puente medieval",
+  "busqueda": "Frías, Burgos"
+ },
+ "Aguilar de Campoo": {
+  "region": "Castilla y León",
+  "horas": 1.5,
+  "ver": "Monasterio de Santa María la Real, románico palentino"
+ },
+ "Frómista": {
+  "region": "Castilla y León",
+  "horas": 1,
+  "ver": "Iglesia románica de San Martín"
+ },
+ "Ayllón": {
+  "region": "Castilla y León",
+  "horas": 1.5,
+  "ver": "Plaza Mayor porticada, palacio de los Contreras"
+ },
+ "Guadalajara": {
+  "region": "Castilla-La Mancha",
+  "horas": 2,
+  "ver": "Palacio del Infantado, panteón de la duquesa de Sevillano"
+ },
+ "Ciudad Real": {
+  "region": "Castilla-La Mancha",
+  "horas": 1.5,
+  "ver": "Puerta de Toledo, Museo del Quijote"
+ },
+ "Albacete": {
+  "region": "Castilla-La Mancha",
+  "horas": 2,
+  "ver": "Pasaje de Lodares, Museo de la Cuchillería, Catedral"
+ },
+ "Talavera de la Reina": {
+  "region": "Castilla-La Mancha",
+  "horas": 2,
+  "ver": "Cerámica, Basílica del Prado, murallas"
+ },
+ "Oropesa": {
+  "region": "Castilla-La Mancha",
+  "horas": 1.5,
+  "ver": "Castillo y Parador, casco antiguo",
+  "busqueda": "Oropesa, Toledo"
+ },
+ "Alcalá del Júcar": {
+  "region": "Castilla-La Mancha",
+  "horas": 2,
+  "ver": "Pueblo colgado sobre la hoz del Júcar, castillo"
+ },
+ "Belmonte": {
+  "region": "Castilla-La Mancha",
+  "horas": 1.5,
+  "ver": "Castillo de Belmonte, colegiata",
+  "busqueda": "Belmonte, Cuenca"
+ },
+ "Alarcón": {
+  "region": "Castilla-La Mancha",
+  "horas": 1.5,
+  "ver": "Castillo y villa sobre el meandro del Júcar",
+  "busqueda": "Alarcón, Cuenca"
+ },
+ "Pastrana": {
+  "region": "Castilla-La Mancha",
+  "horas": 1.5,
+  "ver": "Palacio Ducal, tapices de la Colegiata"
+ },
+ "Atienza": {
+  "region": "Castilla-La Mancha",
+  "horas": 1.5,
+  "ver": "Castillo roquero, iglesias románicas"
+ },
+ "Molina de Aragón": {
+  "region": "Castilla-La Mancha",
+  "horas": 1.5,
+  "ver": "Castillo y alcazaba, puente románico"
+ },
+ "Brihuega": {
+  "region": "Castilla-La Mancha",
+  "horas": 1.5,
+  "ver": "Murallas, Fábrica de Paños; lavanda en julio"
+ },
+ "Villanueva de los Infantes": {
+  "region": "Castilla-La Mancha",
+  "horas": 1.5,
+  "ver": "Plaza Mayor, casas blasonadas"
+ },
+ "Campo de Criptana": {
+  "region": "Castilla-La Mancha",
+  "horas": 1.5,
+  "ver": "Molinos de viento de la Sierra"
+ },
+ "El Toboso": {
+  "region": "Castilla-La Mancha",
+  "horas": 1,
+  "ver": "Casa de Dulcinea, Museo Cervantino"
+ },
+ "Tembleque": {
+  "region": "Castilla-La Mancha",
+  "horas": 0.5,
+  "ver": "Plaza Mayor de madera y piedra"
+ },
+ "Chinchilla de Montearagón": {
+  "region": "Castilla-La Mancha",
+  "horas": 1,
+  "ver": "Castillo, Plaza Mayor, cuevas"
+ },
+ "Almansa": {
+  "region": "Castilla-La Mancha",
+  "horas": 1,
+  "ver": "Castillo sobre la peña"
+ },
+ "San Lorenzo de El Escorial": {
+  "region": "Comunidad de Madrid",
+  "horas": 3,
+  "ver": "Real Monasterio de El Escorial"
+ },
+ "Alcalá de Henares": {
+  "region": "Comunidad de Madrid",
+  "horas": 2.5,
+  "ver": "Universidad, calle Mayor, casa natal de Cervantes"
+ },
+ "Buitrago del Lozoya": {
+  "region": "Comunidad de Madrid",
+  "horas": 1.5,
+  "ver": "Murallas, castillo, Museo Picasso"
+ },
+ "Manzanares el Real": {
+  "region": "Comunidad de Madrid",
+  "horas": 1.5,
+  "ver": "Castillo de los Mendoza, La Pedriza"
+ },
+ "Rascafría": {
+  "region": "Comunidad de Madrid",
+  "horas": 2,
+  "ver": "Monasterio de El Paular, valle del Lozoya"
+ },
+ "Badajoz": {
+  "region": "Extremadura",
+  "horas": 2,
+  "ver": "Alcazaba, Plaza Alta, puente de Palmas"
+ },
+ "Olivenza": {
+  "region": "Extremadura",
+  "horas": 1.5,
+  "ver": "Iglesia de la Magdalena, murallas"
+ },
+ "Jerez de los Caballeros": {
+  "region": "Extremadura",
+  "horas": 1.5,
+  "ver": "Torres barrocas, castillo templario"
+ },
+ "Hervás": {
+  "region": "Extremadura",
+  "horas": 2,
+  "ver": "Barrio judío, Museo Pérez Comendador"
+ },
+ "Cuacos de Yuste": {
+  "region": "Extremadura",
+  "horas": 2,
+  "ver": "Monasterio de Yuste, retiro de Carlos V"
+ },
+ "Garganta la Olla": {
+  "region": "Extremadura",
+  "horas": 1,
+  "ver": "Pueblo de la Vera con casas de entramado"
+ },
+ "Coria": {
+  "region": "Extremadura",
+  "horas": 1.5,
+  "ver": "Catedral, murallas, puente",
+  "busqueda": "Coria, Cáceres"
+ },
+ "Llerena": {
+  "region": "Extremadura",
+  "horas": 1.5,
+  "ver": "Plaza de España, iglesia de Nuestra Señora de la Granada"
+ },
+ "Málaga": {
+  "region": "Andalucía",
+  "horas": 5,
+  "ver": "Alcazaba, Museo Picasso, Catedral, Gibralfaro"
+ },
+ "Antequera": {
+  "region": "Andalucía",
+  "horas": 3,
+  "ver": "Dólmenes, Alcazaba, El Torcal"
+ },
+ "Écija": {
+  "region": "Andalucía",
+  "horas": 2,
+  "ver": "Torres barrocas, palacio de Peñaflor"
+ },
+ "Osuna": {
+  "region": "Andalucía",
+  "horas": 2,
+  "ver": "Colegiata, calle San Pedro, Universidad"
+ },
+ "Priego de Córdoba": {
+  "region": "Andalucía",
+  "horas": 2,
+  "ver": "Barrio de la Villa, Fuente del Rey"
+ },
+ "Cazorla": {
+  "region": "Andalucía",
+  "horas": 2.5,
+  "ver": "Pueblo, castillo y entrada al parque natural",
+  "busqueda": "Cazorla, Jaén"
+ },
+ "Guadix": {
+  "region": "Andalucía",
+  "horas": 2,
+  "ver": "Barrio de cuevas, Catedral, alcazaba"
+ },
+ "Alcalá la Real": {
+  "region": "Andalucía",
+  "horas": 1.5,
+  "ver": "Fortaleza de la Mota"
+ },
+ "Almería": {
+  "region": "Andalucía",
+  "horas": 3,
+  "ver": "Alcazaba, Catedral fortaleza, refugios de la Guerra Civil"
+ },
+ "Andújar": {
+  "region": "Andalucía",
+  "horas": 1,
+  "ver": "Casco antiguo; santuario de la Virgen de la Cabeza cerca"
+ },
+ "Castellón de la Plana": {
+  "region": "Comunitat Valenciana",
+  "horas": 2,
+  "ver": "Plaza Mayor, Fadrí, Grao"
+ },
+ "Peñíscola": {
+  "region": "Comunitat Valenciana",
+  "horas": 2.5,
+  "ver": "Castillo del Papa Luna sobre el mar"
+ },
+ "Morella": {
+  "region": "Comunitat Valenciana",
+  "horas": 2.5,
+  "ver": "Villa amurallada, castillo, basílica"
+ },
+ "Sagunto": {
+  "region": "Comunitat Valenciana",
+  "horas": 2,
+  "ver": "Teatro romano, castillo",
+  "busqueda": "Sagunt"
+ },
+ "Requena": {
+  "region": "Comunitat Valenciana",
+  "horas": 2,
+  "ver": "Barrio de la Villa, cuevas, bodegas"
+ },
+ "Gandia": {
+  "region": "Comunitat Valenciana",
+  "horas": 2,
+  "ver": "Palacio Ducal de los Borja, playa"
+ },
+ "Dénia": {
+  "region": "Comunitat Valenciana",
+  "horas": 2.5,
+  "ver": "Castillo, barrio de pescadores, puerto"
+ },
+ "Altea": {
+  "region": "Comunitat Valenciana",
+  "horas": 2,
+  "ver": "Casco antiguo blanco sobre el mar"
+ },
+ "Guadalest": {
+  "region": "Comunitat Valenciana",
+  "horas": 1.5,
+  "ver": "Castillo y pueblo sobre la roca, embalse",
+  "busqueda": "El Castell de Guadalest"
+ },
+ "Elche": {
+  "region": "Comunitat Valenciana",
+  "horas": 2,
+  "ver": "Palmeral, Huerto del Cura, basílica",
+  "busqueda": "Elx"
+ },
+ "Villena": {
+  "region": "Comunitat Valenciana",
+  "horas": 1.5,
+  "ver": "Castillo de la Atalaya, Tesoro de Villena"
+ },
+ "Murcia": {
+  "region": "Región de Murcia",
+  "horas": 3,
+  "ver": "Catedral, Casino, Museo Salzillo"
+ },
+ "Cartagena": {
+  "region": "Región de Murcia",
+  "horas": 3,
+  "ver": "Teatro romano, Arqva, castillo de la Concepción"
+ },
+ "Caravaca de la Cruz": {
+  "region": "Región de Murcia",
+  "horas": 1.5,
+  "ver": "Santuario de la Vera Cruz, castillo"
+ },
+ "Lorca": {
+  "region": "Región de Murcia",
+  "horas": 2,
+  "ver": "Castillo, colegiata, Plaza de España"
+ },
+ "Huesca": {
+  "region": "Aragón",
+  "horas": 2,
+  "ver": "Catedral, San Pedro el Viejo"
+ },
+ "Tarazona": {
+  "region": "Aragón",
+  "horas": 2,
+  "ver": "Catedral, barrio judío, plaza de toros vieja"
+ },
+ "Calatayud": {
+  "region": "Aragón",
+  "horas": 1.5,
+  "ver": "Colegiata de Santa María, castillos"
+ },
+ "Monasterio de Piedra": {
+  "region": "Aragón",
+  "horas": 3,
+  "ver": "Parque de cascadas y monasterio",
+  "busqueda": "Monasterio de Piedra, Nuévalos",
+  "punto_exacto": true
+ },
+ "Daroca": {
+  "region": "Aragón",
+  "horas": 1.5,
+  "ver": "Murallas, Puerta Baja, colegiata"
+ },
+ "Alcañiz": {
+  "region": "Aragón",
+  "horas": 1.5,
+  "ver": "Castillo-Parador, Plaza de España"
+ },
+ "Valderrobres": {
+  "region": "Aragón",
+  "horas": 1.5,
+  "ver": "Puente, castillo y casco medieval"
+ },
+ "Rubielos de Mora": {
+  "region": "Aragón",
+  "horas": 1.5,
+  "ver": "Villa de piedra con portales y palacios"
+ },
+ "Sos del Rey Católico": {
+  "region": "Aragón",
+  "horas": 1.5,
+  "ver": "Villa medieval, casa natal de Fernando el Católico"
+ },
+ "Jaca": {
+  "region": "Aragón",
+  "horas": 2,
+  "ver": "Catedral románica, Ciudadela"
+ },
+ "Estella": {
+  "region": "Navarra",
+  "horas": 2,
+  "ver": "Palacio de los Reyes, San Pedro de la Rúa",
+  "busqueda": "Estella-Lizarra"
+ },
+ "Puente la Reina": {
+  "region": "Navarra",
+  "horas": 1,
+  "ver": "Puente románico del Camino de Santiago",
+  "busqueda": "Puente la Reina, Navarra"
+ },
+ "Santo Domingo de la Calzada": {
+  "region": "La Rioja",
+  "horas": 1.5,
+  "ver": "Catedral con el gallinero, muralla"
+ },
+ "Nájera": {
+  "region": "La Rioja",
+  "horas": 1.5,
+  "ver": "Monasterio de Santa María la Real"
+ },
+ "San Millán de la Cogolla": {
+  "region": "La Rioja",
+  "horas": 2,
+  "ver": "Monasterios de Yuso y Suso (visita guiada)"
+ },
+ "Ezcaray": {
+  "region": "La Rioja",
+  "horas": 1.5,
+  "ver": "Pueblo de la sierra, fábrica de mantas"
+ },
+ "Hondarribia": {
+  "region": "País Vasco",
+  "horas": 2,
+  "ver": "Casco amurallado, barrio de la Marina"
+ },
+ "Zarautz": {
+  "region": "País Vasco",
+  "horas": 1.5,
+  "ver": "Playa y paseo marítimo"
+ },
+ "Gernika": {
+  "region": "País Vasco",
+  "horas": 1.5,
+  "ver": "Casa de Juntas y el árbol, Museo de la Paz",
+  "busqueda": "Gernika-Lumo"
+ },
+ "Lekeitio": {
+  "region": "País Vasco",
+  "horas": 1.5,
+  "ver": "Puerto, basílica, isla de San Nicolás"
+ },
+ "Potes": {
+  "region": "Cantabria",
+  "horas": 2,
+  "ver": "Torre del Infantado, Liébana; Fuente Dé cerca"
+ },
+ "Laredo": {
+  "region": "Cantabria",
+  "horas": 1.5,
+  "ver": "Puebla vieja, playa de La Salvé"
+ },
+ "Castro Urdiales": {
+  "region": "Cantabria",
+  "horas": 2,
+  "ver": "Iglesia de Santa María y castillo-faro sobre el puerto"
+ },
+ "Santoña": {
+  "region": "Cantabria",
+  "horas": 1.5,
+  "ver": "Fuertes, marismas, anchoas"
+ },
+ "Avilés": {
+  "region": "Asturias",
+  "horas": 2,
+  "ver": "Casco histórico, Centro Niemeyer"
+ },
+ "Llanes": {
+  "region": "Asturias",
+  "horas": 2,
+  "ver": "Villa, puerto, Cubos de la Memoria"
+ },
+ "Ribadesella": {
+  "region": "Asturias",
+  "horas": 1.5,
+  "ver": "Ría, cueva de Tito Bustillo"
+ },
+ "Cudillero": {
+  "region": "Asturias",
+  "horas": 1.5,
+  "ver": "Pueblo marinero en anfiteatro"
+ },
+ "Lastres": {
+  "region": "Asturias",
+  "horas": 1,
+  "ver": "Pueblo marinero, mirador de San Roque",
+  "busqueda": "Llastres, Colunga",
+  "punto_exacto": true,
+  "coord": [
+   43.5142,
+   -5.2713
+  ]
+ },
+ "Ourense": {
+  "region": "Galicia",
+  "horas": 2.5,
+  "ver": "Catedral, As Burgas termales, puente romano"
+ },
+ "Lugo": {
+  "region": "Galicia",
+  "horas": 2.5,
+  "ver": "Muralla romana entera, Catedral"
+ },
+ "Lleida": {
+  "region": "Cataluña",
+  "horas": 2,
+  "ver": "Seu Vella, castillo de Gardeny"
+ },
+ "Tarragona": {
+  "region": "Cataluña",
+  "horas": 3,
+  "ver": "Anfiteatro romano, Catedral, muralla"
+ }
 }

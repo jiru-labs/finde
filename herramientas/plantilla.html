@@ -15,6 +15,10 @@
 <meta property="og:title" content="{{title}}">
 <meta property="og:description" content="{{og_description}}">
 <meta property="og:locale" content="{{locale}}">
+<meta property="og:image" content="https://finde.jirulabs.com/og-{{lang}}.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="{{raiz}}favicon.svg" type="image/svg+xml">
 <link rel="preload" href="{{raiz}}datos.json" as="fetch" crossorigin>
 <link rel="stylesheet" href="{{raiz}}estilo.css">
@@ -27,9 +31,16 @@
     <div>
       <p class="marca"><span class="senal">F</span> Finde <a href="{{jl_href}}" class="jl">· jirulabs</a>
         <a href="{{otro_href}}" class="idioma" id="idioma" hreflang="{{otro_lang}}" lang="{{otro_lang}}">{{otro_label}}</a></p>
+      <p class="kicker">{{kicker}}</p>
       <h1>{{h1}}</h1>
       <p class="lede">{{lede}}</p>
+      <p class="portada" id="portada"></p>
     </div>
+    <ul class="ventajas">
+      <li><strong>{{v1_t}}</strong>{{v1}}</li>
+      <li><strong>{{v2_t}}</strong>{{v2}}</li>
+      <li><strong>{{v3_t}}</strong>{{v3}}</li>
+    </ul>
   </header>
 
   <section aria-labelledby="t-circ">
@@ -49,9 +60,18 @@
         <div class="acciones">
           <button type="button" id="invertir" class="btn">{{invertir}}</button>
           <button type="button" id="estandar" class="btn">{{estandar}}</button>
+          <button type="button" id="editar" class="btn">{{editar}}</button>
+          <button type="button" id="ordenar" class="btn" hidden>{{ordenar}}</button>
+          <button type="button" id="vaciar" class="btn" hidden>{{vaciar}}</button>
         </div>
       </div>
-      <p class="ayuda">{{ayuda}}</p>
+      <p class="ayuda" id="ayuda-circ">{{ayuda}}</p>
+      <p class="ayuda" id="ayuda-propio" hidden>{{ayuda_propio}}</p>
+      <div class="buscador" id="buscador" hidden>
+        <input id="buscar" type="search" placeholder="{{buscar_ph}}" aria-label="{{buscar_ph}}" autocomplete="off" spellcheck="false">
+        <p class="sug-tit" id="sug-tit"></p>
+        <ul class="resultados" id="resultados"></ul>
+      </div>
       <ol class="ciudades" id="ciudades"></ol>
     </div>
   </section>

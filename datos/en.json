@@ -1,88 +1,536 @@
 {
-  "_nota": "Editorial en inglés. construir.py exige una entrada por cada ciudad, región y circuito: si falta una, no genera nada. 'nombre' solo donde el inglés usa otro (Sevilla → Seville).",
-  "regiones": {
-    "Comunidad de Madrid": "Community of Madrid",
-    "Castilla y León": "Castile and León",
-    "País Vasco": "Basque Country",
-    "La Rioja": "La Rioja",
-    "Navarra": "Navarre",
-    "Asturias": "Asturias",
-    "Cantabria": "Cantabria",
-    "Andalucía": "Andalusia",
-    "Extremadura": "Extremadura",
-    "Castilla-La Mancha": "Castile-La Mancha",
-    "Comunitat Valenciana": "Valencian Community",
-    "Aragón": "Aragon"
+ "_nota": "Editorial en inglés. construir.py exige una entrada por cada ciudad, región y circuito: si falta una, no genera nada. 'nombre' solo donde el inglés usa otro (Sevilla → Seville).",
+ "regiones": {
+  "Comunidad de Madrid": "Community of Madrid",
+  "Castilla y León": "Castile and León",
+  "País Vasco": "Basque Country",
+  "La Rioja": "La Rioja",
+  "Navarra": "Navarre",
+  "Asturias": "Asturias",
+  "Cantabria": "Cantabria",
+  "Andalucía": "Andalusia",
+  "Extremadura": "Extremadura",
+  "Castilla-La Mancha": "Castile-La Mancha",
+  "Comunitat Valenciana": "Valencian Community",
+  "Aragón": "Aragon",
+  "Región de Murcia": "Region of Murcia",
+  "Galicia": "Galicia",
+  "Cataluña": "Catalonia"
+ },
+ "circuitos": {
+  "castilla": "Segovia, Salamanca and Ávila",
+  "castilla-norte": "Valladolid, León and Burgos",
+  "vasca": "Bilbao and San Sebastián",
+  "rioja": "La Rioja and Navarre",
+  "asturias": "León and Asturias",
+  "cantabria": "The Cantabrian coast",
+  "andalucia-occidental": "Córdoba and Seville",
+  "andalucia-oriental": "Baeza, Úbeda and Granada",
+  "extremadura": "Trujillo, Cáceres and Mérida",
+  "levante": "Cuenca and Valencia",
+  "aragon": "Zaragoza, Teruel and Albarracín",
+  "mancha": "Toledo and La Mancha"
+ },
+ "fuera": "Galicia, Barcelona and the Costa del Sol are left out: each is more than 5 hours from Madrid one way, so two days would go on driving.",
+ "ciudades": {
+  "Madrid": {
+   "ver": "Start and finish (Puerta del Sol, km 0)"
   },
-  "circuitos": {
-    "castilla": "Segovia, Salamanca and Ávila",
-    "castilla-norte": "Valladolid, León and Burgos",
-    "vasca": "Bilbao and San Sebastián",
-    "rioja": "La Rioja and Navarre",
-    "asturias": "León and Asturias",
-    "cantabria": "The Cantabrian coast",
-    "andalucia-occidental": "Córdoba and Seville",
-    "andalucia-oriental": "Baeza, Úbeda and Granada",
-    "extremadura": "Trujillo, Cáceres and Mérida",
-    "levante": "Cuenca and Valencia",
-    "aragon": "Zaragoza, Teruel and Albarracín",
-    "mancha": "Toledo and La Mancha"
+  "Segovia": {
+   "ver": "Roman aqueduct, Cathedral, Alcázar"
   },
-  "fuera": "Galicia, Barcelona and the Costa del Sol are left out: each is more than 5 hours from Madrid one way, so two days would go on driving.",
-  "ciudades": {
-    "Madrid": {"ver": "Start and finish (Puerta del Sol, km 0)"},
-    "Segovia": {"ver": "Roman aqueduct, Cathedral, Alcázar"},
-    "Ávila": {"ver": "Walk on the city walls, Cathedral, convent of Saint Teresa"},
-    "Salamanca": {"ver": "Plaza Mayor, the University, both cathedrals, Casa de las Conchas"},
-    "Zamora": {"ver": "Cathedral, Romanesque churches, walls above the Douro"},
-    "Valladolid": {"ver": "National Sculpture Museum, Plaza Mayor, Cathedral"},
-    "Palencia": {"ver": "Cathedral («the Unknown Beauty»), Calle Mayor"},
-    "León": {"ver": "Cathedral and its stained glass, San Isidoro, Barrio Húmedo, Casa Botines"},
-    "Burgos": {"ver": "Cathedral, Paseo del Espolón, Arch of Santa María"},
-    "Lerma": {"ver": "Plaza Ducal and the Ducal Palace"},
-    "Soria": {"ver": "San Juan de Duero, hermitage of San Saturio, Romanesque churches"},
-    "Vitoria-Gasteiz": {"ver": "Medieval quarter, Santa María Cathedral, Plaza de la Virgen Blanca"},
-    "Bilbao": {"ver": "Guggenheim, Old Town, riverside walk"},
-    "Getaria": {"ver": "Harbour, church of San Salvador, txakoli wine"},
-    "San Sebastián": {"ver": "La Concha beach, Old Town and pintxos, Mount Urgull"},
-    "Haro": {"ver": "Barrio de la Estación and a winery visit"},
-    "Laguardia": {"ver": "Walled village, portico of Santa María, wineries"},
-    "Logroño": {"ver": "Calle Laurel, Co-cathedral of La Redonda, old town"},
-    "Pamplona": {"ver": "Old town, Plaza del Castillo, Cathedral, Citadel"},
-    "Olite": {"ver": "Royal Palace of Olite"},
-    "Tudela": {"ver": "Cathedral, old town"},
-    "Oviedo": {"ver": "Cathedral, old town, pre-Romanesque churches of Mount Naranco"},
-    "Gijón": {"ver": "Cimadevilla, San Lorenzo beach, Universidad Laboral"},
-    "Cangas de Onís": {"ver": "Roman bridge and Covadonga (without going up to the Lakes)"},
-    "Santander": {"ver": "Magdalena Palace, El Sardinero, Centro Botín"},
-    "Santillana del Mar": {"ver": "Medieval village and Collegiate church (Altamira is separate)"},
-    "Comillas": {"ver": "Gaudí's El Capricho, Pontifical University"},
-    "San Vicente de la Barquera": {"ver": "Old town, Puente de la Maza, views of the Picos de Europa"},
-    "Córdoba": {"ver": "Mosque-Cathedral, Jewish quarter, Alcázar of the Christian Monarchs"},
-    "Carmona": {"ver": "Puerta de Sevilla, old town, Roman necropolis"},
-    "Sevilla": {"nombre": "Seville", "ver": "Cathedral and Giralda, Royal Alcázar, Santa Cruz quarter, Plaza de España"},
-    "Baeza": {"ver": "Plaza del Pópulo, Cathedral, old University"},
-    "Úbeda": {"ver": "Plaza Vázquez de Molina, Sacra Capilla del Salvador"},
-    "Granada": {"ver": "Alhambra (timed entry, book ahead), Albaicín, Royal Chapel"},
-    "Jaén": {"ver": "Cathedral, Castle of Santa Catalina, Arab baths"},
-    "Zafra": {"ver": "Plaza Grande and Plaza Chica, Alcázar"},
-    "Mérida": {"ver": "Roman theatre and amphitheatre, National Museum of Roman Art, Roman bridge"},
-    "Trujillo": {"ver": "Plaza Mayor, castle, conquistadors' mansions"},
-    "Cáceres": {"ver": "The walled monumental city"},
-    "Plasencia": {"ver": "The two cathedrals, Plaza Mayor"},
-    "Guadalupe": {"ver": "Royal Monastery of Santa María"},
-    "Toledo": {"ver": "Cathedral, Jewish quarter, Santo Tomé (El Greco), Alcázar"},
-    "Consuegra": {"ver": "Windmills and castle"},
-    "Almagro": {"ver": "Plaza Mayor, Corral de Comedias theatre"},
-    "Cuenca": {"ver": "Hanging Houses, Cathedral, Huécar gorge"},
-    "Sigüenza": {"ver": "Cathedral, castle, Plaza Mayor"},
-    "Aranjuez": {"ver": "Royal Palace and gardens"},
-    "Chinchón": {"ver": "Plaza Mayor"},
-    "Valencia": {"ver": "Old town, Cathedral and Micalet tower, Silk Exchange, Central Market, City of Arts and Sciences"},
-    "Xàtiva": {"ver": "Castle and old town"},
-    "Alicante": {"ver": "Santa Bárbara Castle, the Explanada, Santa Cruz quarter"},
-    "Zaragoza": {"ver": "Basilica del Pilar, La Seo, Aljafería"},
-    "Teruel": {"ver": "Mudéjar towers, Cathedral, the Lovers of Teruel"},
-    "Albarracín": {"ver": "Medieval village and walls"}
+  "Ávila": {
+   "ver": "Walk on the city walls, Cathedral, convent of Saint Teresa"
+  },
+  "Salamanca": {
+   "ver": "Plaza Mayor, the University, both cathedrals, Casa de las Conchas"
+  },
+  "Zamora": {
+   "ver": "Cathedral, Romanesque churches, walls above the Douro"
+  },
+  "Valladolid": {
+   "ver": "National Sculpture Museum, Plaza Mayor, Cathedral"
+  },
+  "Palencia": {
+   "ver": "Cathedral («the Unknown Beauty»), Calle Mayor"
+  },
+  "León": {
+   "ver": "Cathedral and its stained glass, San Isidoro, Barrio Húmedo, Casa Botines"
+  },
+  "Burgos": {
+   "ver": "Cathedral, Paseo del Espolón, Arch of Santa María"
+  },
+  "Lerma": {
+   "ver": "Plaza Ducal and the Ducal Palace"
+  },
+  "Soria": {
+   "ver": "San Juan de Duero, hermitage of San Saturio, Romanesque churches"
+  },
+  "Vitoria-Gasteiz": {
+   "ver": "Medieval quarter, Santa María Cathedral, Plaza de la Virgen Blanca"
+  },
+  "Bilbao": {
+   "ver": "Guggenheim, Old Town, riverside walk"
+  },
+  "Getaria": {
+   "ver": "Harbour, church of San Salvador, txakoli wine"
+  },
+  "San Sebastián": {
+   "ver": "La Concha beach, Old Town and pintxos, Mount Urgull"
+  },
+  "Haro": {
+   "ver": "Barrio de la Estación and a winery visit"
+  },
+  "Laguardia": {
+   "ver": "Walled village, portico of Santa María, wineries"
+  },
+  "Logroño": {
+   "ver": "Calle Laurel, Co-cathedral of La Redonda, old town"
+  },
+  "Pamplona": {
+   "ver": "Old town, Plaza del Castillo, Cathedral, Citadel"
+  },
+  "Olite": {
+   "ver": "Royal Palace of Olite"
+  },
+  "Tudela": {
+   "ver": "Cathedral, old town"
+  },
+  "Oviedo": {
+   "ver": "Cathedral, old town, pre-Romanesque churches of Mount Naranco"
+  },
+  "Gijón": {
+   "ver": "Cimadevilla, San Lorenzo beach, Universidad Laboral"
+  },
+  "Cangas de Onís": {
+   "ver": "Roman bridge and Covadonga (without going up to the Lakes)"
+  },
+  "Santander": {
+   "ver": "Magdalena Palace, El Sardinero, Centro Botín"
+  },
+  "Santillana del Mar": {
+   "ver": "Medieval village and Collegiate church (Altamira is separate)"
+  },
+  "Comillas": {
+   "ver": "Gaudí's El Capricho, Pontifical University"
+  },
+  "San Vicente de la Barquera": {
+   "ver": "Old town, Puente de la Maza, views of the Picos de Europa"
+  },
+  "Córdoba": {
+   "ver": "Mosque-Cathedral, Jewish quarter, Alcázar of the Christian Monarchs"
+  },
+  "Carmona": {
+   "ver": "Puerta de Sevilla, old town, Roman necropolis"
+  },
+  "Sevilla": {
+   "nombre": "Seville",
+   "ver": "Cathedral and Giralda, Royal Alcázar, Santa Cruz quarter, Plaza de España"
+  },
+  "Baeza": {
+   "ver": "Plaza del Pópulo, Cathedral, old University"
+  },
+  "Úbeda": {
+   "ver": "Plaza Vázquez de Molina, Sacra Capilla del Salvador"
+  },
+  "Granada": {
+   "ver": "Alhambra (timed entry, book ahead), Albaicín, Royal Chapel"
+  },
+  "Jaén": {
+   "ver": "Cathedral, Castle of Santa Catalina, Arab baths"
+  },
+  "Zafra": {
+   "ver": "Plaza Grande and Plaza Chica, Alcázar"
+  },
+  "Mérida": {
+   "ver": "Roman theatre and amphitheatre, National Museum of Roman Art, Roman bridge"
+  },
+  "Trujillo": {
+   "ver": "Plaza Mayor, castle, conquistadors' mansions"
+  },
+  "Cáceres": {
+   "ver": "The walled monumental city"
+  },
+  "Plasencia": {
+   "ver": "The two cathedrals, Plaza Mayor"
+  },
+  "Guadalupe": {
+   "ver": "Royal Monastery of Santa María"
+  },
+  "Toledo": {
+   "ver": "Cathedral, Jewish quarter, Santo Tomé (El Greco), Alcázar"
+  },
+  "Consuegra": {
+   "ver": "Windmills and castle"
+  },
+  "Almagro": {
+   "ver": "Plaza Mayor, Corral de Comedias theatre"
+  },
+  "Cuenca": {
+   "ver": "Hanging Houses, Cathedral, Huécar gorge"
+  },
+  "Sigüenza": {
+   "ver": "Cathedral, castle, Plaza Mayor"
+  },
+  "Aranjuez": {
+   "ver": "Royal Palace and gardens"
+  },
+  "Chinchón": {
+   "ver": "Plaza Mayor"
+  },
+  "Valencia": {
+   "ver": "Old town, Cathedral and Micalet tower, Silk Exchange, Central Market, City of Arts and Sciences"
+  },
+  "Xàtiva": {
+   "ver": "Castle and old town"
+  },
+  "Alicante": {
+   "ver": "Santa Bárbara Castle, the Explanada, Santa Cruz quarter"
+  },
+  "Zaragoza": {
+   "ver": "Basilica del Pilar, La Seo, Aljafería"
+  },
+  "Teruel": {
+   "ver": "Mudéjar towers, Cathedral, the Lovers of Teruel"
+  },
+  "Albarracín": {
+   "ver": "Medieval village and walls"
+  },
+  "Astorga": {
+   "ver": "Gaudí's Episcopal Palace, Cathedral, walls"
+  },
+  "Ponferrada": {
+   "ver": "Templar castle, old town"
+  },
+  "Villafranca del Bierzo": {
+   "ver": "Calle del Agua, church of Santiago"
+  },
+  "Puebla de Sanabria": {
+   "ver": "Medieval village and castle; Lake Sanabria nearby"
+  },
+  "Toro": {
+   "ver": "Collegiate church, viewpoint over the Douro, wineries"
+  },
+  "Ciudad Rodrigo": {
+   "ver": "Walls, Cathedral, Plaza Mayor"
+  },
+  "La Alberca": {
+   "ver": "Half-timbered mountain village, Peña de Francia nearby"
+  },
+  "Medina del Campo": {
+   "ver": "Castillo de la Mota, Plaza Mayor"
+  },
+  "Tordesillas": {
+   "ver": "Monastery of Santa Clara, Treaty Houses"
+  },
+  "Peñafiel": {
+   "ver": "Castle and Wine Museum, Plaza del Coso, wineries"
+  },
+  "Arévalo": {
+   "ver": "Mudéjar squares, castle"
+  },
+  "Pedraza": {
+   "ver": "Walled village, Plaza Mayor, castle"
+  },
+  "Sepúlveda": {
+   "ver": "Medieval village and Duratón gorges"
+  },
+  "La Granja de San Ildefonso": {
+   "ver": "Royal Palace and fountain gardens"
+  },
+  "El Burgo de Osma": {
+   "ver": "Cathedral, arcaded Calle Mayor"
+  },
+  "Medinaceli": {
+   "ver": "Roman arch, Plaza Mayor, collegiate church"
+  },
+  "Calatañazor": {
+   "ver": "Stone medieval hamlet and castle"
+  },
+  "Covarrubias": {
+   "ver": "Half-timbered village, Fernán González tower"
+  },
+  "Santo Domingo de Silos": {
+   "ver": "Romanesque cloister of the monastery, Gregorian chant"
+  },
+  "Frías": {
+   "ver": "Clifftop castle, hanging houses, medieval bridge"
+  },
+  "Aguilar de Campoo": {
+   "ver": "Monastery of Santa María la Real, Palencia Romanesque"
+  },
+  "Frómista": {
+   "ver": "Romanesque church of San Martín"
+  },
+  "Ayllón": {
+   "ver": "Arcaded Plaza Mayor, Contreras palace"
+  },
+  "Guadalajara": {
+   "ver": "Palace of the Infantado, Duchess of Sevillano pantheon"
+  },
+  "Ciudad Real": {
+   "ver": "Puerta de Toledo, Don Quixote Museum"
+  },
+  "Albacete": {
+   "ver": "Pasaje de Lodares, Cutlery Museum, Cathedral"
+  },
+  "Talavera de la Reina": {
+   "ver": "Ceramics, Basilica del Prado, walls"
+  },
+  "Oropesa": {
+   "ver": "Castle and Parador, old town"
+  },
+  "Alcalá del Júcar": {
+   "ver": "Village hanging over the Júcar gorge, castle"
+  },
+  "Belmonte": {
+   "ver": "Belmonte Castle, collegiate church"
+  },
+  "Alarcón": {
+   "ver": "Castle and village on a bend of the Júcar"
+  },
+  "Pastrana": {
+   "ver": "Ducal Palace, collegiate church tapestries"
+  },
+  "Atienza": {
+   "ver": "Rock castle, Romanesque churches"
+  },
+  "Molina de Aragón": {
+   "ver": "Castle and citadel, Romanesque bridge"
+  },
+  "Brihuega": {
+   "ver": "Walls, Royal Cloth Factory; lavender in July"
+  },
+  "Villanueva de los Infantes": {
+   "ver": "Plaza Mayor, mansions with coats of arms"
+  },
+  "Campo de Criptana": {
+   "ver": "Windmills on the ridge"
+  },
+  "El Toboso": {
+   "ver": "House of Dulcinea, Cervantes Museum"
+  },
+  "Tembleque": {
+   "ver": "Wood-and-stone Plaza Mayor"
+  },
+  "Chinchilla de Montearagón": {
+   "ver": "Castle, Plaza Mayor, cave houses"
+  },
+  "Almansa": {
+   "ver": "Castle on the crag"
+  },
+  "San Lorenzo de El Escorial": {
+   "ver": "Royal Monastery of El Escorial"
+  },
+  "Alcalá de Henares": {
+   "ver": "University, Calle Mayor, Cervantes' birthplace"
+  },
+  "Buitrago del Lozoya": {
+   "ver": "Walls, castle, Picasso Museum"
+  },
+  "Manzanares el Real": {
+   "ver": "Mendoza Castle, La Pedriza"
+  },
+  "Rascafría": {
+   "ver": "Monastery of El Paular, Lozoya valley"
+  },
+  "Badajoz": {
+   "ver": "Alcazaba, Plaza Alta, Palmas bridge"
+  },
+  "Olivenza": {
+   "ver": "Church of La Magdalena, walls"
+  },
+  "Jerez de los Caballeros": {
+   "ver": "Baroque towers, Templar castle"
+  },
+  "Hervás": {
+   "ver": "Jewish quarter, Pérez Comendador Museum"
+  },
+  "Cuacos de Yuste": {
+   "ver": "Monastery of Yuste, Charles V's retreat"
+  },
+  "Garganta la Olla": {
+   "ver": "La Vera village with half-timbered houses"
+  },
+  "Coria": {
+   "ver": "Cathedral, walls, bridge"
+  },
+  "Llerena": {
+   "ver": "Plaza de España, church of Our Lady of La Granada"
+  },
+  "Málaga": {
+   "ver": "Alcazaba, Picasso Museum, Cathedral, Gibralfaro"
+  },
+  "Antequera": {
+   "ver": "Dolmens, Alcazaba, El Torcal"
+  },
+  "Écija": {
+   "ver": "Baroque towers, Peñaflor palace"
+  },
+  "Osuna": {
+   "ver": "Collegiate church, Calle San Pedro, University"
+  },
+  "Priego de Córdoba": {
+   "ver": "Barrio de la Villa, Fuente del Rey"
+  },
+  "Cazorla": {
+   "ver": "Town, castle and gateway to the natural park"
+  },
+  "Guadix": {
+   "ver": "Cave quarter, Cathedral, alcazaba"
+  },
+  "Alcalá la Real": {
+   "ver": "Fortress of La Mota"
+  },
+  "Almería": {
+   "ver": "Alcazaba, fortress-cathedral, Civil War shelters"
+  },
+  "Andújar": {
+   "ver": "Old town; Virgen de la Cabeza sanctuary nearby"
+  },
+  "Castellón de la Plana": {
+   "ver": "Plaza Mayor, El Fadrí tower, harbour"
+  },
+  "Peñíscola": {
+   "ver": "Pope Luna's castle above the sea"
+  },
+  "Morella": {
+   "ver": "Walled town, castle, basilica"
+  },
+  "Sagunto": {
+   "ver": "Roman theatre, castle"
+  },
+  "Requena": {
+   "ver": "Barrio de la Villa, caves, wineries"
+  },
+  "Gandia": {
+   "ver": "Ducal Palace of the Borgias, beach"
+  },
+  "Dénia": {
+   "ver": "Castle, fishermen's quarter, harbour"
+  },
+  "Altea": {
+   "ver": "Whitewashed old town above the sea"
+  },
+  "Guadalest": {
+   "ver": "Castle and village on the rock, reservoir"
+  },
+  "Elche": {
+   "ver": "Palm grove, Huerto del Cura, basilica"
+  },
+  "Villena": {
+   "ver": "Atalaya Castle, the Villena Treasure"
+  },
+  "Murcia": {
+   "ver": "Cathedral, Casino, Salzillo Museum"
+  },
+  "Cartagena": {
+   "ver": "Roman theatre, ARQVA museum, Concepción castle"
+  },
+  "Caravaca de la Cruz": {
+   "ver": "Sanctuary of the True Cross, castle"
+  },
+  "Lorca": {
+   "ver": "Castle, collegiate church, Plaza de España"
+  },
+  "Huesca": {
+   "ver": "Cathedral, San Pedro el Viejo"
+  },
+  "Tarazona": {
+   "ver": "Cathedral, Jewish quarter, old bullring"
+  },
+  "Calatayud": {
+   "ver": "Collegiate church of Santa María, castles"
+  },
+  "Monasterio de Piedra": {
+   "ver": "Waterfall park and monastery"
+  },
+  "Daroca": {
+   "ver": "Walls, Puerta Baja, collegiate church"
+  },
+  "Alcañiz": {
+   "ver": "Castle-Parador, Plaza de España"
+  },
+  "Valderrobres": {
+   "ver": "Bridge, castle and medieval town"
+  },
+  "Rubielos de Mora": {
+   "ver": "Stone town with gateways and palaces"
+  },
+  "Sos del Rey Católico": {
+   "ver": "Medieval town, birthplace of Ferdinand the Catholic"
+  },
+  "Jaca": {
+   "ver": "Romanesque cathedral, Citadel"
+  },
+  "Estella": {
+   "ver": "Palace of the Kings, San Pedro de la Rúa"
+  },
+  "Puente la Reina": {
+   "ver": "Romanesque bridge on the Way of St James"
+  },
+  "Santo Domingo de la Calzada": {
+   "ver": "Cathedral with the hen coop, walls"
+  },
+  "Nájera": {
+   "ver": "Monastery of Santa María la Real"
+  },
+  "San Millán de la Cogolla": {
+   "ver": "Monasteries of Yuso and Suso (guided tour)"
+  },
+  "Ezcaray": {
+   "ver": "Mountain village, blanket factory"
+  },
+  "Hondarribia": {
+   "ver": "Walled old town, La Marina quarter"
+  },
+  "Zarautz": {
+   "ver": "Beach and promenade"
+  },
+  "Gernika": {
+   "ver": "Assembly House and the oak, Peace Museum"
+  },
+  "Lekeitio": {
+   "ver": "Harbour, basilica, San Nicolás island"
+  },
+  "Potes": {
+   "ver": "Infantado tower, Liébana; Fuente Dé nearby"
+  },
+  "Laredo": {
+   "ver": "Old town, La Salvé beach"
+  },
+  "Castro Urdiales": {
+   "ver": "Santa María church and lighthouse-castle over the harbour"
+  },
+  "Santoña": {
+   "ver": "Forts, marshes, anchovies"
+  },
+  "Avilés": {
+   "ver": "Historic centre, Niemeyer Centre"
+  },
+  "Llanes": {
+   "ver": "Town, harbour, Cubes of Memory"
+  },
+  "Ribadesella": {
+   "ver": "Estuary, Tito Bustillo cave"
+  },
+  "Cudillero": {
+   "ver": "Fishing village built like an amphitheatre"
+  },
+  "Lastres": {
+   "ver": "Fishing village, San Roque viewpoint"
+  },
+  "Ourense": {
+   "ver": "Cathedral, As Burgas hot springs, Roman bridge"
+  },
+  "Lugo": {
+   "ver": "Complete Roman wall, Cathedral"
+  },
+  "Lleida": {
+   "ver": "Seu Vella old cathedral, Gardeny castle"
+  },
+  "Tarragona": {
+   "ver": "Roman amphitheatre, Cathedral, walls"
   }
+ }
 }

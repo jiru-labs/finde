@@ -11,7 +11,7 @@ Se corre a mano cuando cambian ciudades o circuitos; la página no llama a nadie
   - Precio de gasolina y diésel: mediana nacional del día, del Geoportal de carburantes del Ministerio.
 Todo se cachea en herramientas/cache/; borra un fichero para volver a pedirlo.
 """
-import json, math, sys, time, urllib.parse, urllib.request
+import json, math, sys, time, urllib.error, urllib.parse, urllib.request
 from collections import Counter
 from pathlib import Path
 
@@ -38,8 +38,20 @@ def pedir(url, fichero=None, pausa=1.1):
     if espera > 0:
         time.sleep(espera)
     req = urllib.request.Request(url, headers={"User-Agent": UA})
-    with urllib.request.urlopen(req, timeout=90) as r:
-        datos = json.loads(r.read())
+    # Los servidores públicos dan 502/503 o se cuelgan a ratos: reintento con espera creciente.
+    # Un 4xx es una respuesta de verdad (p. ej. «no hay ruta») y sube tal cual.
+    for intento in range(5):
+        try:
+            with urllib.request.urlopen(req, timeout=90) as r:
+                datos = json.loads(r.read())
+            break
+        except urllib.error.HTTPError as e:
+            if e.code < 500 or intento == 4:
+                raise
+        except (urllib.error.URLError, TimeoutError):
+            if intento == 4:
+                raise
+        time.sleep(30 * (intento + 1))
     _ultima = time.time()
     if fichero:
         fichero.write_text(json.dumps(datos, ensure_ascii=False))
@@ -52,14 +64,14 @@ def geocodificar(ciudades):
         # Se pide el núcleo urbano (city → town → village). Sin featureType, y también con
         # featureType=settlement, «León», «Soria», «Teruel», «Palencia» y «Zamora» caían en el
         # centro de su PROVINCIA (Albarracín–Teruel salía a 81 km y 2 h 20; son 38 km).
-        tipos = [None] if c.get("punto_exacto") else ["city", "town", "village"]
+        tipos = [None] if c.get("punto_exacto") else ["city", "town", "village", "settlement"]
         for tipo in tipos:
             params = {"q": q, "format": "json", "limit": 1, "countrycodes": "es", "extratags": 1}
             if tipo:
                 params["featureType"] = tipo
             url = "https://nominatim.openstreetmap.org/search?" + urllib.parse.urlencode(params)
             res = pedir(url, CACHE / f"geo-{nombre}{'-' + tipo if tipo else ''}.json")
-            if res and (not tipo or res[0].get("addresstype") in ("city", "town", "village", "municipality")):
+            if res and (not tipo or res[0].get("addresstype") in ("city", "town", "village", "municipality", "hamlet")):
                 break
         else:
             sys.exit(f"Nominatim no da un núcleo urbano para «{q}»: afina 'busqueda'")
@@ -69,11 +81,13 @@ def geocodificar(ciudades):
         qid = (res[0].get("extratags") or {}).get("wikidata")
         if qid and not c.get("punto_exacto"):
             wd = pedir(f"https://www.wikidata.org/wiki/Special:EntityData/{qid}.json", CACHE / f"wd-{qid}.json")
-            v = wd["entities"][qid]["claims"]["P625"][0]["mainsnak"]["datavalue"]["value"]
-            d = math.dist((lat, lon * COSL), (v["latitude"], v["longitude"] * COSL)) * 111
-            if d > 15:
-                sys.exit(f"{nombre}: Wikidata ({qid}) y Nominatim discrepan {d:.0f} km")
-            lat, lon = v["latitude"], v["longitude"]
+            p625 = wd["entities"][qid]["claims"].get("P625")
+            if p625:  # sin coordenadas en Wikidata, se queda la de Nominatim
+                v = p625[0]["mainsnak"]["datavalue"]["value"]
+                d = math.dist((lat, lon * COSL), (v["latitude"], v["longitude"] * COSL)) * 111
+                if d > 15:
+                    sys.exit(f"{nombre}: Wikidata ({qid}) y Nominatim discrepan {d:.0f} km")
+                lat, lon = v["latitude"], v["longitude"]
         if c.get("coord"):  # punto fijado a mano donde Wikidata tampoco acierta (ver ciudades.json)
             lat, lon = c["coord"]
         if not (35.5 < lat < 44 and -9.5 < lon < 3.5):
@@ -111,7 +125,7 @@ def polilinea6(cod):
 def es_via(nombre):  # A-6, AP-6, N-320, A-5R (no calles, ni E-xx, ni nombres largos)
     return nombre[:1] in "AN" and "-" in nombre and len(nombre) <= 7
 
-def tramo(a, b, coords, sin_peajes=False):
+def tramo(a, b, coords, sin_peajes=False, tol=0.8):
     ca, cb = coords[a], coords[b]
     q = {"locations": [{"lon": ca[0], "lat": ca[1]}, {"lon": cb[0], "lat": cb[1]}],
          "costing": "auto", "units": "km", "directions_options": {"language": "es-ES"}}
@@ -133,7 +147,7 @@ def tramo(a, b, coords, sin_peajes=False):
             vias_peaje.update(refs)
     total = res["trip"]["summary"]["length"]
     principales = [v for v, d in vias.most_common(3) if d > 0.15 * total][:2]
-    geo = simplificar([proyectar(*p) for p in polilinea6(pierna["shape"])])
+    geo = simplificar([proyectar(*p) for p in polilinea6(pierna["shape"])], tol)
     return {"min": round(res["trip"]["summary"]["time"] / 60), "km": round(total),
             "peaje_km": round(peaje), "peaje_vias": sorted(vias_peaje),
             "vias": principales, "trazado": geo}
@@ -177,6 +191,42 @@ def precios():
     print(f"Precios {out['fecha']}: gasolina {out['gasolina']} €/L, diésel {out['diesel']} €/L")
     return out
 
+# «Tu recorrido»: cualquier lugar de ciudades.json a menos de LIMITE_MADRID de Madrid, con rutas
+# reales entre los pares que pueden caer en el mismo fin de semana (a menos de MAX_PAR km en línea
+# recta). La matriz de Valhalla no sirve: el servidor público la corta en 150 km de ruta.
+LIMITE_MADRID = 315   # min sin paradas: ~5 h 15
+MAX_PAR = 300         # km en línea recta
+def recta(a, b, coords):
+    (lo1, la1), (lo2, la2) = coords[a], coords[b]
+    return math.dist((la1, lo1 * COSL), (la2, lo2 * COSL)) * 111.2
+
+def compacto(t):
+    """[min, km, km de peaje, vías, vías de peaje, trazado]; el trazado va más simplificado que en los circuitos."""
+    return [t["min"], t["km"], t["peaje_km"], t["vias"], t["peaje_vias"], t["trazado"]]
+
+def catalogo(coords, nombres):
+    print("Catálogo: Madrid → cada lugar")
+    desde_madrid = {}
+    for c in nombres:
+        if c != "Madrid":
+            desde_madrid[c] = tramo(*sorted(("Madrid", c)), coords, tol=2.5)
+    dentro = ["Madrid"] + [c for c in nombres if c != "Madrid" and desde_madrid[c]["min"] <= LIMITE_MADRID]
+    fuera = sorted(c for c in desde_madrid if c not in dentro)
+    print(f"  {len(dentro) - 1} lugares a menos de {LIMITE_MADRID} min; fuera: {', '.join(fuera) or 'ninguno'}")
+    pares = [(a, b) for i, a in enumerate(dentro) for b in dentro[i + 1:]
+             if "Madrid" in (a, b) or recta(a, b, coords) <= MAX_PAR]
+    print(f"  {len(pares)} pares (con Madrid, o a menos de {MAX_PAR} km en línea recta)")
+    tramos = {}
+    for k, (a, b) in enumerate(sorted(tuple(sorted(x)) for x in pares)):
+        t = desde_madrid[b if a == "Madrid" else a] if "Madrid" in (a, b) else tramo(a, b, coords, tol=2.5)
+        fila = compacto(t)
+        if t["peaje_km"]:
+            fila.append(compacto(tramo(a, b, coords, sin_peajes=True, tol=2.5)))
+        tramos[f"{a}|{b}"] = fila
+        if k % 250 == 0:
+            print(f"  {k}/{len(pares)}", flush=True)
+    return {"lugares": dentro, "fuera": fuera, "tramos": tramos, "max_par": MAX_PAR}
+
 def main():
     CACHE.mkdir(parents=True, exist_ok=True)
     ciudades = {k: v for k, v in json.loads((RAIZ / "datos/ciudades.json").read_text()).items() if not k.startswith("_")}
@@ -211,6 +261,7 @@ def main():
         "generado": time.strftime("%Y-%m-%d"),
         "mapa": {"ancho": ANCHO, "alto": ALTO, "paises": contorno()},
         "precios": precios(),
+        "catalogo": catalogo(coords, nombres),
         "nombres": nombres,
         "xy": {n: proyectar(*coords[n]) for n in nombres},
         "tramos": tramos,

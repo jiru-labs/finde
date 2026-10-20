@@ -21,6 +21,7 @@ coches = sin_nota(leer("datos/coches.json"))
 en = leer("datos/en.json")
 textos = leer("datos/textos.json")
 gen = leer("datos/generado.json")
+correcciones = sin_nota(leer("datos/correcciones.json"))["tramos"]
 
 errores = []
 faltan = [n for n in ciudades if n not in gen["nombres"]]
@@ -51,8 +52,21 @@ plantilla = (RAIZ / "herramientas/plantilla.html").read_text()
 huecos = set(re.findall(r"\{\{(\w+)\}\}", plantilla))
 if huecos - claves_es:
     errores.append(f"plantilla.html usa textos que no existen: {sorted(huecos - claves_es)}")
+cat = gen.get("catalogo")
+if not cat:
+    errores.append("datos/generado.json sin catálogo: corre herramientas/descargar.py")
+for k in correcciones:
+    if k not in gen["tramos"] and k not in (cat or {}).get("tramos", {}):
+        errores.append(f"datos/correcciones.json: el tramo {k} no existe")
 if errores:
     sys.exit("No se genera nada:\n  " + "\n  ".join(errores))
+
+# Correcciones medidas: solo cambian el tiempo de la ruta con peajes (la que se midió).
+for k, c in correcciones.items():
+    if k in gen["tramos"]:
+        gen["tramos"][k]["min"] = c["min"]
+    if k in cat["tramos"]:
+        cat["tramos"][k][0] = c["min"]
 
 salida = {
     "generado": gen["generado"],
@@ -69,7 +83,26 @@ salida = {
     "fuera": circ["fuera"],
     "fuera_en": en["fuera"],
 }
+salida["catalogo_n"] = len(cat["lugares"]) - 1
+salida["catalogo_regiones"] = len({ciudades[c]["region"] for c in cat["lugares"] if c != "Madrid"})
 (RAIZ / "docs/datos.json").write_text(json.dumps(salida, ensure_ascii=False, separators=(",", ":")))
+# «Tu recorrido» carga esto solo cuando se abre: [min, km, km peaje, vías, vías de peaje, trazado, (sin peajes)].
+# El trazado va plano y en diferencias de medio punto del mapa ([x0, y0, dx1, dy1, …] ×2): pesa un tercio.
+def plano(trazado):
+    out, px, py = [], 0, 0
+    for x, y in trazado:
+        qx, qy = round(x * 2), round(y * 2)
+        out += [qx - px, qy - py]
+        px, py = qx, qy
+    return out
+
+def compacta(v):
+    return v[:5] + [plano(v[5])] + ([compacta(v[6])] if len(v) > 6 else [])
+
+(RAIZ / "docs/catalogo.json").write_text(json.dumps(
+    {"lugares": cat["lugares"], "max_par": cat["max_par"],
+     "tramos": {k: compacta(v) for k, v in cat["tramos"].items()}},
+    ensure_ascii=False, separators=(",", ":")))
 
 # Los textos con HTML a propósito (llevan etiquetas) van tal cual; el resto se escapa.
 CON_HTML = {"pie_calculo", "pie_peajes", "creditos"}
@@ -88,5 +121,6 @@ for idioma, destino in (("es", "docs/index.html"), ("en", "docs/en/index.html"))
               '<xhtml:link rel="alternate" hreflang="en" href="https://finde.jirulabs.com/en/"/></url>\n'
               for u in ("https://finde.jirulabs.com/", "https://finde.jirulabs.com/en/"))
     + "</urlset>\n")
-print(f"docs/: datos.json ({(RAIZ / 'docs/datos.json').stat().st_size // 1024} KB), index.html, en/index.html, sitemap.xml · "
-      f"{len(salida['circuitos'])} circuitos, {len(ciudades)} ciudades")
+print(f"docs/: datos.json ({(RAIZ / 'docs/datos.json').stat().st_size // 1024} KB), "
+      f"catalogo.json ({(RAIZ / 'docs/catalogo.json').stat().st_size // 1024} KB), index.html, en/index.html, sitemap.xml · "
+      f"{len(salida['circuitos'])} circuitos, {len(cat['lugares']) - 1} lugares en el catálogo, {len(correcciones)} correcciones")
