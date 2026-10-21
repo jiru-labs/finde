@@ -22,21 +22,23 @@
   "castilla-norte": "Valladolid, León and Burgos",
   "vasca": "Bilbao and San Sebastián",
   "rioja": "La Rioja and Navarre",
-  "asturias": "León and Asturias",
+  "asturias": "Oviedo, Gijón and Cangas de Onís",
   "cantabria": "The Cantabrian coast",
-  "andalucia-occidental": "Córdoba and Seville",
+  "andalucia-occidental": "Córdoba, Carmona and Seville",
   "andalucia-oriental": "Baeza, Úbeda and Granada",
   "extremadura": "Trujillo, Cáceres and Mérida",
-  "levante": "Cuenca and Valencia",
+  "levante": "Valencia, Peñíscola and Morella",
   "aragon": "Zaragoza, Teruel and Albarracín",
   "mancha": "Toledo and La Mancha",
   "galicia": "Santiago and the Rías Baixas",
   "barcelona": "Barcelona and Girona",
   "costa-dorada": "Tarragona, Poblet and Sitges",
   "costa-del-sol": "Málaga, Ronda and Marbella",
-  "cadiz": "Cádiz, Jerez and the white towns"
+  "cadiz": "Cádiz, Jerez and the white towns",
+  "costa-blanca": "Alicante and the Costa Blanca",
+  "murcia": "Murcia, Cartagena and Lorca"
  },
- "fuera": "Galicia, Catalonia and the coasts of Málaga and Cádiz are more than 5 hours from Madrid by car: their circuits go by train to a station and by hire car from there. The islands don't fit into a weekend like this.",
+ "fuera": "The islands don't fit into a weekend like this. What is more than 5 hours away by car (Galicia, Catalonia, the coasts of Málaga and Cádiz) goes by train to a station and by hire car from there.",
  "ciudades": {
   "Madrid": {
    "ver": "Start and finish (Puerta del Sol, km 0)"

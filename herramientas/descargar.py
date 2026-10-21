@@ -9,7 +9,7 @@ Se corre a mano cuando cambian ciudades o circuitos; la página no llama a nadie
     y sin marca de peaje; Valhalla da 4 h 54 y marca el peaje en cada maniobra.
   - Contorno de la península: Natural Earth 1:50m.
   - Precio de gasolina y diésel: mediana nacional del día, del Geoportal de carburantes del Ministerio.
-  - Trenes directos Madrid ↔ cada lugar, del sábado y el domingo siguientes: GTFS de Renfe
+  - Duración típica del tren directo Madrid ↔ cada lugar (sábado y domingo siguientes): GTFS de Renfe
     (alta velocidad, larga y media distancia; datos abiertos, se publica cada día). Ouigo e Iryo
     están en el Punto de Acceso Nacional, que pide registrarse: no entran.
 Todo se cachea en herramientas/cache/; borra un fichero para volver a pedirlo.
@@ -195,9 +195,11 @@ def precios():
     return out
 
 # Tren + coche de alquiler: se va en tren hasta una estación, se recoge allí un coche y el circuito
-# sale y vuelve a esa estación. Un lugar es estación de la página si tiene una de Renfe a menos de
-# MAX_ESTACION km con trenes directos a Madrid (al menos dos cada día) y el tren más rápido, sumada
-# la recogida del coche, le gana al coche desde Madrid por GANANCIA min o más. El coche se cuenta como en la
+# sale y vuelve a esa estación. La página no usa horarios (orden suya del 21-10-2026: «con que sepamos
+# cuánto tarda un tren de Madrid a una ciudad es suficiente»): solo la duración típica, la mediana de
+# los trenes directos de un sábado y un domingo. Un lugar es estación de la página si tiene una de
+# Renfe a menos de MAX_ESTACION km con trenes directos a Madrid (al menos dos cada día) y esa duración,
+# sumada la recogida del coche, le gana al coche desde Madrid por GANANCIA min o más. El coche se cuenta como en la
 # página, con aparcar y descansos: sin ellos se quedaban fuera Oviedo y Granada, que ganan más de una hora.
 RENFE = "https://ssl.renfe.com/gtransit/Fichero_AV_LD/google_transit.zip"
 MAX_ESTACION = 9    # km de la estación al centro del lugar. Con 12, Cambados se quedaba la de Vilagarcía y
@@ -288,23 +290,24 @@ def trenes(coords, desde_madrid):
             asignada[lugar] = (s, km)
     out = {}
     for lugar, (s, km) in sorted(asignada.items()):
-        mejor = min(b - a for a, b in ida[s])
+        dur = sorted([b - a for a, b in ida[s]] + [b - a for a, b in vuelta[s]])
+        tipico = dur[len(dur) // 2]
         coche = desde_madrid[lugar]["min"]
-        if mejor + RECOGER + GANANCIA > coche + APARCAR + coche // 120 * DESCANSO:
+        if tipico + RECOGER + GANANCIA > coche + APARCAR + coche // 120 * DESCANSO:
             continue
         nombre, lon, lat = estaciones[s]
         # Estación fuera del casco (Camp de Tarragona, Cuenca-Fernando Zóbel): el trayecto hasta él se suma.
         acceso = 0
         if km > 4:
             acceso = tramo(f"estación {nombre}", lugar, {**coords, f"estación {nombre}": (lon, lat)})["min"]
-        out[lugar] = {"estacion": nombre, "acceso": acceso,
-                      "ida": sorted(ida[s].values()), "vuelta": sorted(vuelta[s].values())}
-        print(f"  {lugar:24} {nombre:34} {km:4.1f} km +{acceso:2d} min · mejor {mejor // 60}:{mejor % 60:02d}"
-              f" (coche {coche // 60}:{coche % 60:02d}) · sáb {len(ida[s])}, dom {len(vuelta[s])}")
+        out[lugar] = {"estacion": nombre, "acceso": acceso, "min": tipico}
+        print(f"  {lugar:24} {nombre:34} {km:4.1f} km +{acceso:2d} min · tren {tipico // 60}:{tipico % 60:02d}"
+              f" (de {dur[0] // 60}:{dur[0] % 60:02d} a {dur[-1] // 60}:{dur[-1] % 60:02d}; coche {coche // 60}:{coche % 60:02d})"
+              f" · sáb {len(ida[s])}, dom {len(vuelta[s])}")
     if not out:
         sys.exit("Trenes: ninguna estación útil (¿cambió el formato del GTFS?)")
     return {"sabado": sab.isoformat(), "domingo": dom.isoformat(),
-            "fuente": "Renfe, horarios de alta velocidad, larga y media distancia (data.renfe.com, GTFS)",
+            "fuente": "Renfe, duración típica de los trenes directos (data.renfe.com, GTFS de alta velocidad, larga y media distancia)",
             "estaciones": out}
 
 # «Tu recorrido»: cualquier lugar de ciudades.json a menos de LIMITE_MADRID de Madrid, con rutas
@@ -364,7 +367,7 @@ def main():
     print("Tramos:")
     pares = set()
     for c in circuitos:
-        nodos = ["Madrid"] + c["ciudades"]
+        nodos = ([] if c.get("tren") else ["Madrid"]) + c["ciudades"]   # en tren no se conduce desde Madrid
         for i, a in enumerate(nodos):
             for b in nodos[i + 1:]:
                 pares.add(tuple(sorted((a, b))))

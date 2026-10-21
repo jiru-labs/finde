@@ -25,7 +25,7 @@
     "t_aj": "Ajustes",
     "s1": "Salida el sábado",
     "s2": "Salida el domingo",
-    "fin": "En Madrid el domingo antes de",
+    "fin": "En casa el domingo antes de",
     "l": "Consumo (L/100 km)",
     "p": "Combustible (€/L)",
     "np": "Evitar peajes",
@@ -61,8 +61,7 @@
     "aria_modo": "Cómo vas",
     "modo_coche": "🚗 En coche desde Madrid",
     "modo_tren": "🚄 Tren + coche de alquiler",
-    "estacion": "Tren hasta",
-    "tren_ida": "Tren de ida, el sábado"
+    "estacion": "Tren hasta"
   },
   "en": {
     "lang": "en",
@@ -89,7 +88,7 @@
     "t_aj": "Settings",
     "s1": "Leave on Saturday",
     "s2": "Leave on Sunday",
-    "fin": "In Madrid on Sunday before",
+    "fin": "Home on Sunday by",
     "l": "Consumption (L/100 km)",
     "p": "Fuel (€/L)",
     "np": "Avoid tolls",
@@ -125,7 +124,6 @@
     "aria_modo": "How you travel",
     "modo_coche": "🚗 By car from Madrid",
     "modo_tren": "🚄 Train + hire car",
-    "estacion": "Train to",
-    "tren_ida": "Outbound train, Saturday"
+    "estacion": "Train to"
   }
 }

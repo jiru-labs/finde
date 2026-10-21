@@ -28,7 +28,7 @@ faltan = [n for n in ciudades if n not in gen["nombres"]]
 if faltan:
     errores.append(f"sin datos de carretera para {faltan}: corre herramientas/descargar.py")
 for c in circ["circuitos"]:
-    nodos = ["Madrid"] + c["ciudades"]
+    nodos = ([] if c.get("tren") else ["Madrid"]) + c["ciudades"]
     for i, a in enumerate(nodos):
         for b in nodos[i + 1:]:
             if "|".join(sorted((a, b))) not in gen["tramos"]:
