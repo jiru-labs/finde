@@ -12,6 +12,12 @@ async function cargaCatalogo() {
 
 const APARCAR = 15;          // min por tramo: entrar en la ciudad y aparcar
 const DESCANSO = 15;         // min por cada 2 h seguidas al volante (DGT)
+// En tren + coche de alquiler el circuito sale y vuelve a la estación (D.trenes, de herramientas/descargar.py).
+const EST = D.trenes.estaciones;
+const RECOGER = 30;          // min: recoger el coche en la estación (el mismo RECOGER que descargar.py)
+const DEVOLVER = 30;         // min: devolverlo y llegar al andén antes del tren de vuelta
+const TREN_DESDE = 7 * 60;   // tren de ida por defecto: el primero que sale de Madrid a partir de esta hora
+const TREN_JUSTO = 20;       // menos margen que esto para coger el tren de vuelta = muy justo
 const LIMITE_SAB = 22 * 60 + 30; // terminar el sábado más tarde ya es mal plan
 const MUCHO_VOLANTE = 6 * 60;  // en carretera, paradas incluidas
 // l y p a null = los del tipo de coche (datos/coches.json y la mediana de precios del día).
@@ -36,6 +42,15 @@ const reg = c => EN ? C[c].en.region : C[c].region;
 const ver = c => EN ? C[c].en.ver : C[c].ver;
 const nomCirc = c => EN ? c.nombre_en : c.nombre;
 const esPropio = st => st.c === PROPIO;
+const origen = st => st.tren || "Madrid";
+// Estaciones que se pueden elegir: las de las ciudades del circuito, o todas en «Tu recorrido».
+const estacionesDe = st => esPropio(st) ? Object.keys(EST).sort((a, b) => nom(a).localeCompare(nom(b)))
+                                        : circ(st.c).ciudades.filter(c => EST[c]);
+// [sale, llega, tipo, estación de Madrid]: el elegido, o el primero desde TREN_DESDE.
+function trenIda(st) {
+  const l = EST[st.tren].ida, t = st.ti && hm(st.ti);
+  return l.find(x => x[0] === t) || l.find(x => x[0] >= TREN_DESDE) || l[l.length - 1];
+}
 
 // ---------- textos que cambian con el plan (los fijos están en datos/textos.json) ----------
 const T = EN ? {
@@ -56,19 +71,35 @@ const T = EN ? {
   duermes: "You sleep here", auto: "chosen to balance the two days", tuyo: "chosen by you · tap the moon again to go back to automatic",
   partido: h => `Since you sleep here, the visit is split in two: the afternoon you arrive and the morning before you move on. ${h} in total.`,
   tardeSab: "Saturday afternoon", mananaDom: "Sunday morning", soloCena: "just arrive and have dinner", soloSalir: "leave right after breakfast",
-  noCabe: "doesn't fit", casa: l => `home ${l}`, demasiadoLejos: "too far from your route",
+  noCabe: "doesn't fit", casa: (l, tren) => tren ? `Madrid ${l}` : `home ${l}`, demasiadoLejos: "too far from your route",
   dias: ["Saturday", "Sunday"], nota: { tarde: "afternoon", manana: "morning" }, peajeKm: k => `toll ${k} km`,
   cena: c => `Dinner and bed in ${c}`, finCasa: "Home",
   mucho: h => `Over ${h} on the road today: take turns driving`, muyTarde: "The day ends very late", despues: f => `You get home after ${f}`,
-  cab: (v, i, t) => `${v} on the road · ${i ? "home" : "ends"} ${t}`,
+  cab: (v, i, t, tren) => `${v} on the road · ${i ? (tren ? "Madrid" : "home") : "ends"} ${t}`,
   copiado: "Link copied: anyone who opens it will see this same plan", copiaTu: "Copy the address from the browser bar",
   fueraTit: "What's not here.", generado: f => `Road data from ${f}`,
-  portada: (c, n, r) => `<b>${c}</b> ready-made routes · <b>${n}</b> places less than 5 h away · <b>${r}</b> regions · free, no sign-up`,
+  portada: (c, n, r) => `<b>${c}</b> ready-made routes · <b>${n}</b> places by car or by train · <b>${r}</b> regions · free, no sign-up`,
   propio: "Your own route", propioVacio: n => `＋ Build it with any of ${n} places`,
   sugerencias: "On your way, and you'd still be home on time:", sugerenciasVacio: "To start, the closest ones:",
   resultados: n => n ? `${n} result${n > 1 ? "s" : ""}:` : "No place in the catalogue matches.",
   coches: { media: "average", gasolina: "petrol", diesel: "diesel", hibrido: "hybrid" },
   fuelMedia: "average of petrol, diesel and hybrid",
+  sinTren: (e, u) => `Doesn't fit: the last train from ${e} to Madrid leaves at ${u} and you won't make it.`,
+  sinTrenSub: l => `You'd have to be back at the station by ${l} to return the car. Cut some hours on Sunday or drop a city.`,
+  noTardeTren: (l, x) => `Doesn't fit: the first train you can catch gets to Madrid at ${l}, ${x} late.`,
+  noTardeTrenSub: "Cut some hours on Sunday to catch an earlier one, or change the arrival time in Settings.",
+  justoTren: (s, h) => `Fits, just: the ${s} train leaves ${h} after you return the car.`,
+  justoTrenSub: "One traffic jam on the way back and you miss it.",
+  okTren: (s, l) => `Fits: train back at ${s}, in Madrid at ${l}.`,
+  okTrenSub: h => `You reach the station with ${h} to spare, on top of the half hour to return the car.`,
+  masTarde: (u, h) => ` There are trains until ${u}: you could stay ${h} longer.`,
+  tarjetaTren: (e, km, l) => `🚄 to ${e} · ${km} km by car · Madrid ${l}`,
+  enTren: "By train", enCoche: "By car", enMadrid: "In Madrid", idaVuelta: (a, b) => `out ${a} · back ${b}`,
+  recoger: a => `Pick up the hire car${a ? ` and drive to the centre (${a} min)` : ""}`,
+  devolver: a => `${a ? `Drive to the station (${a} min) and r` : "R"}eturn the car`,
+  espera: h => `wait ${h}`, finMadrid: e => `In Madrid (${e})`, sinTrenFin: "No train back",
+  trenAyuda: (s, d) => `Renfe timetables for Saturday ${s} and Sunday ${d}, direct trains only (no Ouigo or Iryo). The train back is the first one you can catch after returning the car. Check times and fares on renfe.com before you book.`,
+  trenPie: (s, d) => `<strong>Train.</strong> The circuits marked 🚄, and any other with a station among its cities, can be done by train from Madrid to that station and by hire car from there; the car is picked up and returned at the same station. Times are Renfe's direct trains for the weekend of ${s} and ${d} (Renfe open data; Ouigo and Iryo are not included). 30 min are added to pick up the car and 30 to return it before the train back. Ticket and car hire prices change every day and are not calculated: check them on renfe.com and with the hire company.`,
   fuelPie: (p, f) => `<strong>Fuel.</strong> By default, the average of what a petrol car (${f(D.coches.gasolina.l, 1)} L/100 km), a diesel (${f(D.coches.diesel.l, 1)}) and a non-plug-in hybrid (${f(D.coches.hibrido.l, 1)}) would use on the motorway, at the national median price on ${p.fecha}: petrol 95 at ${f(p.gasolina, 3)} €/L and diesel at ${f(p.diesel, 3)} €/L (Spanish Ministry for the Ecological Transition, ${p.gasolina_estaciones.toLocaleString("en-GB")} petrol stations). In Settings you can pick your type of car and change the consumption and the price.`,
 } : {
   tarjeta: (km, v, l) => `${km} km · ${v} de carretera · vuelta ${l}`,
@@ -88,26 +119,44 @@ const T = EN ? {
   duermes: "Aquí duermes", auto: "elegida para cuadrar los dos días", tuyo: "elegida por ti · pulsa otra vez la luna para volver al automático",
   partido: h => `Como duermes aquí, la visita se parte en dos: la tarde que llegas y la mañana antes de seguir. En total, ${h}.`,
   tardeSab: "Sábado por la tarde", mananaDom: "Domingo por la mañana", soloCena: "solo llegar y cenar", soloSalir: "sales nada más desayunar",
-  noCabe: "no cabe", casa: l => `en casa ${l}`, demasiadoLejos: "demasiado lejos de tu ruta",
+  noCabe: "no cabe", casa: (l, tren) => tren ? `en Madrid ${l}` : `en casa ${l}`, demasiadoLejos: "demasiado lejos de tu ruta",
   dias: ["Sábado", "Domingo"], nota: { tarde: "tarde", manana: "mañana" }, peajeKm: k => `peaje ${k} km`,
   cena: c => `Cena y a dormir en ${c}`, finCasa: "En casa",
   mucho: h => `Más de ${h} en carretera hoy: mejor turnarse`, muyTarde: "Terminas el día muy tarde", despues: f => `Llegas después de las ${f}`,
-  cab: (v, i, t) => `${v} en carretera · ${i ? "en casa" : "fin"} ${t}`,
+  cab: (v, i, t, tren) => `${v} en carretera · ${i ? (tren ? "en Madrid" : "en casa") : "fin"} ${t}`,
   copiado: "Enlace copiado: quien lo abra verá este mismo plan", copiaTu: "Copia la dirección de la barra del navegador",
   fueraTit: "Lo que no está.", generado: f => `Datos de carretera del ${f}`,
-  portada: (c, n, r) => `<b>${c}</b> rutas listas · <b>${n}</b> lugares a menos de 5 h · <b>${r}</b> comunidades · gratis y sin registro`,
+  portada: (c, n, r) => `<b>${c}</b> rutas listas · <b>${n}</b> lugares en coche o en tren · <b>${r}</b> comunidades · gratis y sin registro`,
   propio: "Tu recorrido", propioVacio: n => `＋ Ármalo con cualquiera de ${n} lugares`,
   sugerencias: "Te pillan de camino y seguirías llegando a tu hora:", sugerenciasVacio: "Para empezar, las más cercanas:",
   resultados: n => n ? `${n} resultado${n > 1 ? "s" : ""}:` : "Ningún lugar del catálogo coincide.",
   coches: { media: "media", gasolina: "gasolina", diesel: "diésel", hibrido: "híbrido" },
   fuelMedia: "media de gasolina, diésel e híbrido",
+  sinTren: (e, u) => `No cabe: el último tren de ${e} a Madrid sale a las ${u} y no llegas.`,
+  sinTrenSub: l => `Tendrías que estar en la estación a las ${l} para devolver el coche. Recorta horas el domingo o quita una ciudad.`,
+  noTardeTren: (l, x) => `No cabe: el primer tren que pillas llega a Madrid a las ${l}, ${x} tarde.`,
+  noTardeTrenSub: "Recorta horas el domingo para coger uno antes, o cambia la hora de llegada en «Ajustes».",
+  justoTren: (s, h) => `Cabe muy justo: el tren de las ${s} sale ${h} después de devolver el coche.`,
+  justoTrenSub: "Un atasco a la vuelta y lo pierdes.",
+  okTren: (s, l) => `Cabe: tren de vuelta a las ${s}, en Madrid a las ${l}.`,
+  okTrenSub: h => `Llegas a la estación con ${h} de margen, además de la media hora para devolver el coche.`,
+  masTarde: (u, h) => ` Hay trenes hasta las ${u}: te puedes quedar ${h} más.`,
+  tarjetaTren: (e, km, l) => `🚄 a ${e} · ${km} km en coche · Madrid ${l}`,
+  enTren: "En tren", enCoche: "En coche", enMadrid: "En Madrid", idaVuelta: (a, b) => `ida ${a} · vuelta ${b}`,
+  recoger: a => `Recoger el coche de alquiler${a ? ` e ir al centro (${a} min)` : ""}`,
+  devolver: a => `${a ? `Ir a la estación (${a} min) y d` : "D"}evolver el coche`,
+  espera: h => `espera ${h}`, finMadrid: e => `En Madrid (${e})`, sinTrenFin: "Sin tren de vuelta",
+  trenAyuda: (s, d) => `Horarios de Renfe del sábado ${s} y el domingo ${d}, solo trenes directos (sin Ouigo ni Iryo). El de vuelta es el primero que pillas después de devolver el coche. Comprueba horas y precio en renfe.com antes de comprar.`,
+  trenPie: (s, d) => `<strong>Tren.</strong> Los circuitos con 🚄, y cualquier otro con una estación entre sus ciudades, se pueden hacer en tren de Madrid a esa estación y en coche de alquiler desde allí; el coche se recoge y se devuelve en la misma estación. Los horarios son los trenes directos de Renfe del fin de semana del ${s} y el ${d} (datos abiertos de Renfe; Ouigo e Iryo no están). Se suman 30 min para recoger el coche y 30 para devolverlo antes del tren de vuelta. El billete y el alquiler cambian de precio cada día y no se calculan: míralos en renfe.com y en la empresa de alquiler.`,
   fuelPie: (p, f) => `<strong>Combustible.</strong> Por defecto, la media de lo que gastarían en autovía un coche de gasolina (${f(D.coches.gasolina.l, 1)} L/100 km), uno diésel (${f(D.coches.diesel.l, 1)}) y un híbrido no enchufable (${f(D.coches.hibrido.l, 1)}), a la mediana nacional de precios del ${p.fecha}: gasolina 95 a ${f(p.gasolina, 3)} €/L y diésel a ${f(p.diesel, 3)} €/L (Ministerio para la Transición Ecológica, ${p.gasolina_estaciones.toLocaleString("es-ES")} gasolineras). En «Ajustes» puedes elegir tu tipo de coche y cambiar el consumo y el precio.`,
 };
 
+// tren = estación a la que se va en tren (null = en coche desde Madrid); ti = hora de salida del tren de ida.
 function base(id) {
-  if (id === PROPIO) return { c: PROPIO, sel: [], n: null, inv: false, h: {}, t: null, m: null };
+  if (id === PROPIO) return { c: PROPIO, sel: [], n: null, inv: false, h: {}, t: null, m: null, tren: null, ti: null };
   const c = circ(id) || CIRC[0];
-  return { c: c.id, sel: [...c.por_defecto], n: null, inv: false, h: {}, t: null, m: null };  // n null = automática
+  return { c: c.id, sel: [...c.por_defecto], n: null, inv: false, h: {}, t: null, m: null,  // n null = automática
+           tren: c.tren?.estacion ?? null, ti: c.tren?.ida ?? null };
 }
 const horas = (st, c) => st.h[c] ?? C[c].horas;
 // En un circuito el orden es el suyo; en «Tu recorrido», el de la lista (sel ya va en orden de ruta).
@@ -168,8 +217,11 @@ function plan(st, sinPeajes = A.np) {
     for (const t of ts) {
       const p = calcular(st, n, t, st.m ?? Math.max(0, H - t), sinPeajes);
       if (p.imposible) return p;  // un tramo sin ruta no lo arregla ninguna noche
-      const v = [Math.min(OBJ_SAB - p.finSab, hm(A.fin) - p.llegada, 120), -Math.abs(t - H / 2),
-                 -Math.abs(p.dias[0].vol - p.dias[1].vol)];
+      // En tren cuenta también el margen para coger el de vuelta: 20 min ahí pesan como 30 de llegar a casa.
+      // Sin tren posible, el plan que menos se pasa del último.
+      const v = [p.sinTren ? -1e4 - (p.sinTren.listo - p.sinTren.ultimo[0])
+                 : Math.min(OBJ_SAB - p.finSab, hm(A.fin) - p.llegada, (p.margenTren ?? 1e4) + 10, 120),
+                 -Math.abs(t - H / 2), -Math.abs(p.dias[0].vol - p.dias[1].vol)];
       if (!nota || v[0] > nota[0] || (v[0] === nota[0] && (v[1] > nota[1] || (v[1] === nota[1] && v[2] > nota[2])))) {
         nota = v; mejor = p;
       }
@@ -178,49 +230,68 @@ function plan(st, sinPeajes = A.np) {
   return mejor;
 }
 
+// En tren, el sábado empieza al recoger el coche en la estación, y el domingo acaba al devolverlo y
+// coger el primer tren que da tiempo; «llegada» es entonces la hora a la que ese tren llega a Madrid.
 function calcular(st, n, t, m, sinPeajes) {
-  const o = orden(st), ni = o.indexOf(n);
-  const tramos = [["Madrid", ...o.slice(0, ni + 1)], [...o.slice(ni), "Madrid"]];
-  let km = 0, vol = 0, vis = 0, peaje = 0, imposible = null; const viasPeaje = new Set(), piernas = [];
+  const o = orden(st), ni = o.indexOf(n), E = origen(st), tren = st.tren && EST[st.tren], ida = tren && trenIda(st);
+  const tramos = [[E, ...o.slice(0, ni + 1)], [...o.slice(ni), E]];
+  let km = 0, vol = 0, vis = 0, peaje = 0, imposible = null, sinTren = null, margenTren = null;
+  const viasPeaje = new Set(), piernas = [];
   const dias = tramos.map((seq, d) => {
-    let r = hm(d ? A.s2 : A.s1), volD = 0; const filas = [];
+    let r = d ? hm(A.s2) : tren ? ida[1] + RECOGER + tren.acceso : hm(A.s1), volD = 0; const filas = [];
+    if (tren && !d) filas.push({ k: "tren", t: ida[0], llega: ida[1], tipo: ida[2], de: "Madrid " + ida[3], a: tren.estacion },
+                               { k: "alquiler", t: ida[1], min: RECOGER + tren.acceso, txt: T.recoger(tren.acceso) });
     seq.forEach((c, j) => {
       if (imposible) return;
       if (j === 0) {
         if (d === 1) { filas.push({ k: "visita", t: r, c, min: m * 60, nota: "manana" }); r += m * 60; vis += m * 60; }
         return;
       }
-      const x = conduce(seq[j - 1], c, sinPeajes);
-      if (!x) { imposible = [seq[j - 1], c]; return; }
-      filas.push({ k: "coche", t: r, de: seq[j - 1], a: c, ...x });
-      r += x.min; volD += x.min; km += x.km; peaje += x.peaje; x.viasPeaje.forEach(v => viasPeaje.add(v));
-      piernas.push(x.trazado);
-      if (c === "Madrid") return;
+      if (seq[j - 1] !== c) {   // la estación también puede ser la primera ciudad que se ve: ahí no se conduce
+        const x = conduce(seq[j - 1], c, sinPeajes);
+        if (!x) { imposible = [seq[j - 1], c]; return; }
+        filas.push({ k: "coche", t: r, de: seq[j - 1], a: c, ...x });
+        r += x.min; volD += x.min; km += x.km; peaje += x.peaje; x.viasPeaje.forEach(v => viasPeaje.add(v));
+        piernas.push(x.trazado);
+      }
+      if (d === 1 && j === seq.length - 1) return;   // de vuelta en Madrid o en la estación
       const noche = d === 0 && c === n, mm = (noche ? t : horas(st, c)) * 60;
       filas.push({ k: "visita", t: r, c, min: mm, nota: noche ? "tarde" : null });
       r += mm; vis += mm;
     });
+    if (tren && d && !imposible) {
+      const listo = r + DEVOLVER + tren.acceso, v = tren.vuelta.find(x => x[0] >= listo);
+      filas.push({ k: "alquiler", t: r, min: DEVOLVER + tren.acceso, txt: T.devolver(tren.acceso) });
+      if (!v) sinTren = { listo, ultimo: tren.vuelta[tren.vuelta.length - 1] };
+      else {
+        margenTren = v[0] - listo;
+        filas.push({ k: "tren", t: v[0], llega: v[1], tipo: v[2], de: tren.estacion, a: "Madrid " + v[3], espera: margenTren, vuelta: v });
+        r = v[1];
+      }
+    }
     vol += volD;
     return { filas, fin: r, vol: volD };
   });
   return { n, t, m, o, dias, km, vol, vis, peaje, viasPeaje: [...viasPeaje].sort(), piernas, imposible,
-           finSab: dias[0].fin, llegada: dias[1].fin, gasolina: gasto(km) };
+           finSab: dias[0].fin, llegada: dias[1].fin, gasolina: gasto(km),
+           tren: tren ? { e: st.tren, ida, vuelta: dias[1].filas.find(f => f.vuelta)?.vuelta } : null, sinTren, margenTren };
 }
 function estado(p) {
   if (!p) return "vacio";
-  if (p.imposible) return "no";
+  if (p.imposible || p.sinTren) return "no";
   const holgura = hm(A.fin) - p.llegada;
   if (holgura < 0 || p.finSab > 24 * 60) return "no";
-  if (holgura < 30 || p.finSab > LIMITE_SAB) return "justo";
+  // En tren el riesgo no es llegar tarde a casa, que tiene hora fija, sino perder el tren de vuelta.
+  if ((p.tren ? p.margenTren < TREN_JUSTO : holgura < 30) || p.finSab > LIMITE_SAB) return "justo";
   return "ok";
 }
 
 // ---------- «Tu recorrido»: dónde meter una ciudad, y el mejor orden ----------
 const minutos = (a, b) => a === b ? 0 : tramo(a, b, A.np)?.min;
-function inserta(sel, c) {   // en la posición que menos conducción añade
+function inserta(sel, c, E = origen(S)) {   // en la posición que menos conducción añade
   let mejor = null, coste = Infinity;
   for (let i = 0; i <= sel.length; i++) {
-    const a = i ? sel[i - 1] : "Madrid", b = i < sel.length ? sel[i] : "Madrid";
+    const a = i ? sel[i - 1] : E, b = i < sel.length ? sel[i] : E;
     const ac = minutos(a, c), cb = minutos(c, b), ab = minutos(a, b);
     if (ac == null || cb == null) continue;
     const d = ac + cb - (ab ?? 0);
@@ -229,10 +300,10 @@ function inserta(sel, c) {   // en la posición que menos conducción añade
   if (mejor === null) return null;
   const s = [...sel]; s.splice(mejor, 0, c); return s;
 }
-function ordenMejor(sel) {   // todas las permutaciones hasta 7 ciudades (5.040); más no cabe en un finde
+function ordenMejor(sel, E = origen(S)) {   // todas las permutaciones hasta 7 ciudades (5.040); más no cabe en un finde
   if (sel.length < 3 || sel.length > 7) return sel;
-  const largo = o => { let t = 0, a = "Madrid";
-    for (const c of [...o, "Madrid"]) { const m = minutos(a, c); if (m == null) return Infinity; t += m; a = c; } return t; };
+  const largo = o => { let t = 0, a = E;
+    for (const c of [...o, E]) { const m = minutos(a, c); if (m == null) return Infinity; t += m; a = c; } return t; };
   let mejor = sel, min = largo(sel);
   const permuta = (hecho, resto) => {
     if (!resto.length) { const l = largo(hecho); if (l < min) { min = l; mejor = hecho; } return; }
@@ -261,6 +332,8 @@ function aURL() {
   if (h) q.set("h", h);
   if (S.t !== null) q.set("t", S.t);
   if (S.m !== null) q.set("m", S.m);
+  if (S.tren !== d.tren) q.set("e", S.tren ?? "coche");
+  if (S.tren && S.ti && S.ti !== d.ti) q.set("ti", S.ti);
   for (const k in AJ) if (A[k] !== AJ[k]) q.set(k, A[k] === true ? 1 : A[k]);
   history.replaceState(null, "", "#" + q.toString());
   const idioma = $("#idioma");   // el otro idioma abre el mismo plan
@@ -282,6 +355,10 @@ async function deURL() {
     if (pool.includes(c) && n_(v) !== null) S.h[c] = Math.max(0.5, Math.min(12, +v));
   }
   S.t = n_(q.get("t")); S.m = n_(q.get("m"));
+  const e = q.get("e");
+  if (e === "coche") S.tren = null;
+  else if (estacionesDe(S).includes(e)) { S.tren = e; S.ti = null; }
+  if (S.tren && /^\d\d:\d\d$/.test(q.get("ti") || "")) S.ti = q.get("ti");
   for (const k of ["s1", "s2", "fin"]) if (/^\d\d:\d\d$/.test(q.get(k) || "")) A[k] = q.get(k);
   A.np = q.get("np") === "1";
   if (q.get("coche") in D.coches || q.get("coche") === "media") A.coche = q.get("coche");
@@ -295,21 +372,22 @@ function pintar() {
                             ["#vaciar", propio && S.sel.length > 0], ["#invertir", S.sel.length > 1],
                             ["#ayuda-circ", !propio], ["#ayuda-propio", propio], ["#buscador", propio]])
     $(id).hidden = !ver_;
-  pintarCircuitos(); pintarMapa(p); pintarVeredicto(p, e); pintarCifras(p);
+  pintarCircuitos(); pintarModo(); pintarMapa(p); pintarVeredicto(p, e); pintarCifras(p);
   pintarCiudades(p); if (propio) pintarBuscador(p);
   pintarDias(p); pintarComparar(); pintarAjustes(); aURL();
 }
 
 function pintarCircuitos() {
   const tarjetas = CIRC.map(c => {
-    const p = plan(base(c.id)), e = estado(p);
+    const b = base(c.id), p = plan(b), e = estado(p);
+    const txt = b.tren ? T.tarjetaTren(nom(b.tren), p.km, reloj(p.llegada)) : T.tarjeta(p.km, dur(p.vol), reloj(p.llegada));
     return `<button type="button" class="circ" role="radio" aria-checked="${c.id === S.c}" data-circ="${c.id}">
       <strong>${esc(nomCirc(c))}</strong>
-      <small><span class="punto ${e}" aria-hidden="true"></span>${T.tarjeta(p.km, dur(p.vol), reloj(p.llegada))}</small></button>`;
+      <small><span class="punto ${e}" aria-hidden="true"></span>${esc(txt)}</small></button>`;
   });
   const g = esPropio(S) ? S : propioGuardado, gp = g && g.sel.length ? plan(g) : null, ge = estado(gp);
   const resumen = gp && !gp.imposible
-    ? `<span class="punto ${ge}" aria-hidden="true"></span>${g.sel.map(nom).map(esc).join(", ")} · ${T.casa(reloj(gp.llegada))}`
+    ? `<span class="punto ${ge}" aria-hidden="true"></span>${g.tren ? "🚄 " : ""}${g.sel.map(nom).map(esc).join(", ")} · ${T.casa(reloj(gp.llegada), g.tren)}`
     : T.propioVacio(D.catalogo_n);
   tarjetas.push(`<button type="button" class="circ circ-propio" role="radio" aria-checked="${esPropio(S)}" data-circ="${PROPIO}">
       <strong>${T.propio}</strong><small>${resumen}</small></button>`);
@@ -320,6 +398,20 @@ function pintarVeredicto(p, e) {
   let t, sub;
   if (!p) { t = T.vacio; sub = T.vacioSub; }
   else if (p.imposible) { t = T.lejos(nom(p.imposible[0]), nom(p.imposible[1])); sub = T.lejosSub; }
+  else if (p.sinTren) { t = T.sinTren(nom(p.tren.e), reloj(p.sinTren.ultimo[0])); sub = T.sinTrenSub(reloj(p.sinTren.ultimo[0] - DEVOLVER - EST[p.tren.e].acceso)); }
+  else if (p.tren) {
+    const h = hm(A.fin) - p.llegada, sale = reloj(p.tren.vuelta[0]);
+    if (h < 0) { t = T.noTardeTren(reloj(p.llegada), dur(-h)); sub = T.noTardeTrenSub; }
+    else if (e === "no") { t = T.noSab(reloj(p.finSab)); sub = T.noSabSub; }
+    else if (p.finSab > LIMITE_SAB) { t = T.sabTarde(reloj(p.finSab)); sub = T.sabTardeSub; }
+    else if (e === "justo") { t = T.justoTren(sale, dur(p.margenTren)); sub = T.justoTrenSub; }
+    else {
+      t = T.okTren(sale, reloj(p.llegada)); sub = T.okTrenSub(dur(p.margenTren));
+      // El último tren que aún te deja en Madrid a tu hora: lo que se puede alargar el domingo.
+      const u = EST[p.tren.e].vuelta.filter(x => x[1] <= hm(A.fin)).pop();
+      if (u && u[0] - p.tren.vuelta[0] >= 60) sub += T.masTarde(reloj(u[0]), dur(u[0] - p.tren.vuelta[0]));
+    }
+  }
   else {
     const h = hm(A.fin) - p.llegada;
     if (e === "no" && h < 0) { t = T.noTarde(reloj(p.llegada), dur(-h)); sub = T.noTardeSub; }
@@ -334,24 +426,26 @@ function pintarVeredicto(p, e) {
 
 function pintarCifras(p) {
   const el = $("#cifras");
-  el.hidden = !p || !!p.imposible;
+  el.hidden = !p || !!p.imposible || !!p.sinTren;
   if (el.hidden) return;
   const cel = (dt, dd, sm) => `<div><dt>${dt}</dt><dd>${dd}${sm ? `<small>${sm}</small>` : ""}</dd></div>`;
   const nota = A.coche === "media" ? T.fuelMedia
     : `${T.coches[A.coche]} · ${num(consumo(), 1)} L/100 km · ${num(precio(), 2)} €/L`;
+  const tr = p.tren, tramoTren = x => `${reloj(x[0])} → ${reloj(x[1])}`;
   el.innerHTML =
-    cel(T.distancia, `${p.km} km`) +
-    cel(T.carretera, dur(p.vol), `${dur(p.dias[0].vol)} + ${dur(p.dias[1].vol)}`) +
+    (tr ? cel(T.enTren, dur(tr.ida[1] - tr.ida[0] + tr.vuelta[1] - tr.vuelta[0]), T.idaVuelta(tramoTren(tr.ida), tramoTren(tr.vuelta)))
+        + cel(T.enCoche, `${p.km} km`, dur(p.vol))
+        : cel(T.distancia, `${p.km} km`) + cel(T.carretera, dur(p.vol), `${dur(p.dias[0].vol)} + ${dur(p.dias[1].vol)}`)) +
     cel(T.ciudades, dur(p.vis)) +
     cel(T.peaje, p.peaje ? `${p.peaje} km` : T.ninguno, peajeNota(p)) +
     cel(T.combustible, `≈ ${Math.round(p.gasolina)} €`, nota) +
-    cel(T.enCasa, reloj(p.llegada), T.elDomingo);
+    cel(tr ? T.enMadrid : T.enCasa, reloj(p.llegada), T.elDomingo);
 }
 
 function peajeNota(p) {
   if (A.np) return p.peaje ? T.inevitables : T.evitados;
   if (!p.peaje) return "";
-  const q = plan(S, true), m = q && !q.imposible ? q.llegada - p.llegada : 0;
+  const q = plan(S, true), m = q && !q.imposible && !q.sinTren ? q.llegada - p.llegada : 0;
   return `${p.viasPeaje.join(", ")} · ${T.evitarlos}: ${m > 0 ? "+" + dur(m) : T.mismo}`;
 }
 
@@ -392,7 +486,7 @@ function pintarCiudades(p) {
     } else {
       const q = plan({ ...S, sel: [...S.sel, c] }), e = estado(q);
       const mas = (q.vol + q.vis) - (p.vol + p.vis);
-      ctrl = `<span class="coste ${e === "no" ? "nocabe" : "cabe"}">+${dur(mas)}<br>${e === "no" ? T.noCabe : T.casa(reloj(q.llegada))}</span>`;
+      ctrl = `<span class="coste ${e === "no" ? "nocabe" : "cabe"}">+${dur(mas)}<br>${e === "no" ? T.noCabe : T.casa(reloj(q.llegada), S.tren)}</span>`;
     }
     if (propio) {  // en «Tu recorrido» no hay casilla: se quita con ✕ y se mueve con las flechas
       izq = `<span class="mover">
@@ -429,7 +523,7 @@ function pintarBuscador(p) {
   $("#sug-tit").textContent = titulo;
   $("#resultados").innerHTML = filas.map(([c, r]) => {
     const coste = r.lejos ? `<span class="nocabe">${T.demasiadoLejos}</span>`
-      : `<span class="${r.cabe ? "cabe" : "nocabe"}">+${dur(r.mas)} · ${r.cabe ? T.casa(reloj(r.q.llegada)) : T.noCabe}</span>`;
+      : `<span class="${r.cabe ? "cabe" : "nocabe"}">+${dur(r.mas)} · ${r.cabe ? T.casa(reloj(r.q.llegada), S.tren) : T.noCabe}</span>`;
     return `<li><button type="button" class="res" data-anadir="${esc(c)}"${r.lejos ? " disabled" : ""}>
       <span class="res-nom">${esc(nom(c))} <small>${esc(reg(c))}</small><span class="res-ver">${esc(ver(c))}</span></span>
       <span class="res-coste">${coste}</span></button></li>`;
@@ -444,13 +538,17 @@ function pintarDias(p) {
   $("#dias").innerHTML = p.dias.map((d, i) => {
     const filas = d.filas.map(f => f.k === "coche"
       ? `<li class="coche"><time>${reloj(f.t)}</time><span class="que">${esc(nom(f.de))} → ${esc(nom(f.a))}${badgeVias(f.vias, f.viasPeaje)}<span class="etq">${f.km} km</span>${f.peaje ? `<span class="peaje">${T.peajeKm(f.peaje)}</span>` : ""}</span><span class="dur">${dur(f.min)}</span></li>`
+      : f.k === "tren"
+      ? `<li class="tren"><time>${reloj(f.t)}</time><span class="que">🚄 ${esc(f.de)} → ${esc(f.a)}<span class="tipo">${esc(f.tipo)}</span>${f.espera ? `<span class="etq">${T.espera(dur(f.espera))}</span>` : ""}</span><span class="dur">${dur(f.llega - f.t)}</span></li>`
+      : f.k === "alquiler"
+      ? `<li class="alquiler"><time>${reloj(f.t)}</time><span class="que">${esc(f.txt)}</span><span class="dur">${dur(f.min)}</span></li>`
       : `<li class="visita"><time>${reloj(f.t)}</time><span class="que">${esc(nom(f.c))}${f.nota ? `<span class="etq">☾ ${T.nota[f.nota]}</span>` : ""}</span><span class="dur">${dur(f.min)}</span></li>`).join("");
-    const fin = i === 0 ? T.cena(esc(nom(p.n))) : T.finCasa;
+    const fin = i === 0 ? T.cena(esc(nom(p.n))) : p.sinTren ? T.sinTrenFin : p.tren ? esc(T.finMadrid(p.tren.vuelta[3])) : T.finCasa;
     const avisos = [];
     if (d.vol > MUCHO_VOLANTE) avisos.push(T.mucho(dur(MUCHO_VOLANTE)));
     if (i === 0 && d.fin > LIMITE_SAB) avisos.push(T.muyTarde);
     if (i === 1 && d.fin > hm(A.fin)) avisos.push(T.despues(A.fin));
-    return `<article class="dia"><h3>${T.dias[i]}<small>${T.cab(dur(d.vol), i, reloj(d.fin))}</small></h3>
+    return `<article class="dia"><h3>${T.dias[i]}<small>${T.cab(dur(d.vol), i, reloj(d.fin), !!p.tren)}</small></h3>
       <ol class="tl">${filas}<li class="fin"><time>${reloj(d.fin)}</time><span class="que">${fin}</span><span></span></li></ol>
       ${avisos.map(a => `<span class="aviso">${a}</span>`).join("")}</article>`;
   }).join("");
@@ -459,7 +557,7 @@ function pintarDias(p) {
 function pintarComparar() {
   $("#comparar").innerHTML = CIRC.map(c => {
     const p = plan(base(c.id)), e = estado(p);
-    return `<tr class="${c.id === S.c ? "sel" : ""}"><td><button type="button" data-circ="${c.id}">${esc(nomCirc(c))}</button></td>
+    return `<tr class="${c.id === S.c ? "sel" : ""}"><td><button type="button" data-circ="${c.id}">${c.tren ? "🚄 " : ""}${esc(nomCirc(c))}</button></td>
       <td>${c.por_defecto.map(x => esc(nom(x))).join(", ")}</td><td class="n">${p.km}</td><td class="n">${dur(p.vol)}</td>
       <td class="n">${dur(p.vis)}</td><td class="n">${p.peaje ? p.peaje + " km" : "—"}</td>
       <td class="n${e === "no" ? " tarde" : ""}">${reloj(p.llegada)}</td></tr>`;
@@ -468,6 +566,7 @@ function pintarComparar() {
 
 // Con «media» no hay un consumo ni un precio que enseñar: los campos se apagan.
 function pintarAjustes() {
+  $("#s1").disabled = !!S.tren;   // en tren manda la hora del tren de ida
   const media = A.coche === "media";
   for (const k of ["l", "p"]) {
     const el = $("#" + k);
@@ -477,9 +576,32 @@ function pintarAjustes() {
   }
 }
 
+// ---------- cómo se va: en coche desde Madrid, o en tren hasta una estación y en coche de alquiler ----------
+function pintarModo() {
+  const est = estacionesDe(S), el = $("#modo");
+  el.hidden = !est.length;
+  if (el.hidden) return;
+  for (const b of el.querySelectorAll("[data-modo]")) b.setAttribute("aria-checked", String((b.dataset.modo === "tren") === !!S.tren));
+  for (const id of ["#l-estacion", "#l-ida", "#ayuda-tren"]) $(id).hidden = !S.tren;
+  if (!S.tren) return;
+  $("#estacion").innerHTML = est.map(c => `<option value="${esc(c)}"${c === S.tren ? " selected" : ""}>${esc(nom(c))}${EST[c].estacion !== c ? ` · ${esc(EST[c].estacion)}` : ""}</option>`).join("");
+  const ida = trenIda(S);
+  $("#ida").innerHTML = EST[S.tren].ida.map(x => `<option value="${reloj(x[0])}"${x === ida ? " selected" : ""}>${reloj(x[0])} → ${reloj(x[1])} · ${esc(x[2])} · ${esc(x[3])}</option>`).join("");
+}
+// Al pasar a tren: la estación del circuito, o en «Tu recorrido» la que menos conducción deja hasta las ciudades elegidas.
+function estacionPorDefecto(st) {
+  const est = estacionesDe(st);
+  if (!esPropio(st)) return circ(st.c).tren?.estacion ?? est[0];
+  if (!st.sel.length) return est.reduce((a, b) => EST[b].ida.length > EST[a].ida.length ? b : a);   // la de más trenes
+  const coste = e => st.sel.reduce((s, c) => s + (minutos(e, c) ?? 1e4), 0);
+  return est.reduce((a, b) => coste(b) < coste(a) ? b : a);
+}
+function cambiaTren(e) { S.tren = e; S.ti = null; S.t = S.m = null; pintar(); }
+
 // ---------- mapa ----------
 function pintarMapa(p) {
-  const pool = esPropio(S) ? S.sel : circ(S.c).ciudades;
+  const pool = [...(esPropio(S) ? S.sel : circ(S.c).ciudades)];
+  if (S.tren && !pool.includes(S.tren)) pool.push(S.tren);
   const piernas = p && !p.imposible ? p.piernas : [];
   const pts = [C.Madrid.xy, ...pool.map(c => C[c].xy)];
   piernas.forEach(t => t.forEach(q => pts.push(q)));
@@ -496,6 +618,10 @@ function pintarMapa(p) {
   for (const [iso, d] of Object.entries(D.mapa.paises))
     s += `<path d="${d}" fill="var(${iso === "ESP" ? "--tierra" : "--tierra-otra"})" stroke="var(--borde)" stroke-width="${0.9 * k}" stroke-linejoin="round"/>`;
   const linea = piernas.map(t => `<polyline points="${t.map(q => q.join(",")).join(" ")}"/>`).join("");
+  if (S.tren) {
+    const [ex, ey] = C[S.tren].xy;
+    s += `<line x1="${C.Madrid.xy[0]}" y1="${C.Madrid.xy[1]}" x2="${ex}" y2="${ey}" stroke="var(--tren)" stroke-width="${2.6 * k}" stroke-dasharray="${7 * k} ${4.5 * k}" stroke-linecap="round"/>`;
+  }
   s += `<g fill="none" stroke-linejoin="round" stroke-linecap="round"><g stroke="var(--surface)" stroke-width="${6.5 * k}">${linea}</g><g stroke="var(--via)" stroke-width="${3.4 * k}">${linea}</g></g>`;
 
   const fs = 14 * k, ocupado = [];
@@ -544,9 +670,13 @@ async function irA(id, estado_) {
   pintar();
 }
 document.addEventListener("click", ev => {
-  const b = ev.target.closest("[data-circ],[data-paso],[data-noche],[data-anadir],[data-quitar],[data-mover]");
+  const b = ev.target.closest("[data-circ],[data-paso],[data-noche],[data-anadir],[data-quitar],[data-mover],[data-modo]");
   if (!b) return;
   if (b.dataset.circ) { irA(b.dataset.circ); return; }
+  if (b.dataset.modo) {
+    if ((b.dataset.modo === "tren") !== !!S.tren) cambiaTren(b.dataset.modo === "tren" ? estacionPorDefecto(S) : null);
+    return;
+  }
   if (b.dataset.noche) { S.n = S.n === b.dataset.noche ? null : b.dataset.noche; S.t = S.m = null; pintar(); return; }
   if (b.dataset.anadir) {
     const sel = inserta(S.sel, b.dataset.anadir);
@@ -585,7 +715,9 @@ $("#editar").addEventListener("click", () => {   // el circuito actual pasa a se
   irA(PROPIO, copia);
 });
 $("#ordenar").addEventListener("click", () => { S.sel = ordenMejor(S.sel); S.inv = false; S.t = S.m = null; pintar(); });
-$("#vaciar").addEventListener("click", () => { S = base(PROPIO); pintar(); });
+$("#vaciar").addEventListener("click", () => { S = { ...base(PROPIO), tren: S.tren, ti: S.ti }; pintar(); });
+$("#estacion").addEventListener("change", ev => cambiaTren(ev.target.value));
+$("#ida").addEventListener("change", ev => { S.ti = ev.target.value; S.t = S.m = null; pintar(); });
 $("#buscar").addEventListener("input", () => pintarBuscador(plan(S)));
 $("#buscar").addEventListener("keydown", ev => {
   if (ev.key !== "Enter") return;
@@ -615,6 +747,9 @@ $("#portada").innerHTML = T.portada(CIRC.length, D.catalogo_n, D.catalogo_region
 $("#fuera").innerHTML = `<strong>${T.fueraTit}</strong> ${esc(EN ? D.fuera_en : D.fuera)}`;
 $("#pie-combustible").innerHTML = T.fuelPie({ ...D.precios, fecha: EN ? D.precios.fecha.split("/").reverse().join("-") : D.precios.fecha.replaceAll("/", "-") }, num);
 $("#generado").textContent = T.generado(EN ? D.generado : D.generado.split("-").reverse().join("-"));
+const fechaTren = f => EN ? f : f.split("-").reverse().join("-");
+$("#pie-tren").innerHTML = T.trenPie(fechaTren(D.trenes.sabado), fechaTren(D.trenes.domingo));
+$("#ayuda-tren").textContent = T.trenAyuda(fechaTren(D.trenes.sabado), fechaTren(D.trenes.domingo));
 
 await deURL();
 for (const k of ["s1", "s2", "fin"]) $("#" + k).value = A[k];

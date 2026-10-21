@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Genera el sitio a partir de los datos. Sin llamadas de red.
 
-  docs/datos.json        lo editorial (datos/*.json) + lo derivado (datos/generado.json)
+  docs/datos.json        lo editorial (datos/*.json) + lo derivado (datos/generado.json), trenes incluidos
   docs/index.html        español, desde herramientas/plantilla.html + datos/textos.json
   docs/en/index.html     inglés, ídem
   docs/sitemap.xml
@@ -52,6 +52,13 @@ plantilla = (RAIZ / "herramientas/plantilla.html").read_text()
 huecos = set(re.findall(r"\{\{(\w+)\}\}", plantilla))
 if huecos - claves_es:
     errores.append(f"plantilla.html usa textos que no existen: {sorted(huecos - claves_es)}")
+est = gen.get("trenes", {}).get("estaciones")
+if not est:
+    errores.append("datos/generado.json sin trenes: corre herramientas/descargar.py")
+for c in circ["circuitos"]:
+    e = c.get("tren", {}).get("estacion")
+    if e and (e not in (est or {}) or e not in c["ciudades"]):
+        errores.append(f"{c['id']}: la estación {e} no tiene trenes útiles o no está entre sus ciudades")
 cat = gen.get("catalogo")
 if not cat:
     errores.append("datos/generado.json sin catálogo: corre herramientas/descargar.py")
@@ -73,6 +80,7 @@ salida = {
     "fuente": gen["fuente"],
     "mapa": gen["mapa"],
     "precios": gen["precios"],
+    "trenes": gen["trenes"],
     "coches": coches,
     "ciudades": {n: {"region": c["region"], "horas": c["horas"], "ver": c["ver"], "xy": gen["xy"][n],
                      "en": {"nombre": en["ciudades"][n].get("nombre", n), "ver": en["ciudades"][n]["ver"],

@@ -1,5 +1,5 @@
 {
-  "_nota": "Editorial. 'ciudades' va en el orden del recorrido (se puede invertir en la página). 'por_defecto' = las marcadas al abrir. Dónde se duerme no se fija aquí: la página elige la ciudad que mejor reparte los dos días. Todos salen y vuelven a Madrid.",
+  "_nota": "Editorial. 'ciudades' va en el orden del recorrido (se puede invertir en la página). 'por_defecto' = las marcadas al abrir. Dónde se duerme no se fija aquí: la página elige la ciudad que mejor reparte los dos días. Todos salen y vuelven a Madrid. 'tren' = el circuito va por defecto en tren hasta 'estacion' (una de sus ciudades) y en coche de alquiler desde allí; 'ida' fija el tren de ida por defecto (hora de salida de Madrid). Cualquier circuito con una estación entre sus ciudades se puede hacer también así desde la página.",
   "circuitos": [
     {"id": "castilla", "nombre": "Segovia, Salamanca y Ávila", "ciudades": ["Segovia", "Valladolid", "Zamora", "Salamanca", "Ávila"], "por_defecto": ["Segovia", "Salamanca", "Ávila"]},
     {"id": "castilla-norte", "nombre": "Valladolid, León y Burgos", "ciudades": ["Valladolid", "Palencia", "León", "Burgos", "Lerma"], "por_defecto": ["Valladolid", "León", "Burgos"]},
@@ -12,7 +12,12 @@
     {"id": "extremadura", "nombre": "Trujillo, Cáceres y Mérida", "ciudades": ["Plasencia", "Trujillo", "Cáceres", "Mérida", "Guadalupe"], "por_defecto": ["Trujillo", "Cáceres", "Mérida"]},
     {"id": "levante", "nombre": "Cuenca y Valencia", "ciudades": ["Cuenca", "Valencia", "Xàtiva", "Alicante"], "por_defecto": ["Cuenca", "Valencia"]},
     {"id": "aragon", "nombre": "Zaragoza, Teruel y Albarracín", "ciudades": ["Sigüenza", "Zaragoza", "Teruel", "Albarracín"], "por_defecto": ["Zaragoza", "Teruel", "Albarracín"]},
-    {"id": "mancha", "nombre": "Toledo y La Mancha", "ciudades": ["Toledo", "Consuegra", "Almagro", "Aranjuez", "Chinchón"], "por_defecto": ["Toledo", "Consuegra", "Almagro", "Aranjuez"]}
+    {"id": "mancha", "nombre": "Toledo y La Mancha", "ciudades": ["Toledo", "Consuegra", "Almagro", "Aranjuez", "Chinchón"], "por_defecto": ["Toledo", "Consuegra", "Almagro", "Aranjuez"]},
+    {"id": "galicia", "nombre": "Santiago y las Rías Baixas", "ciudades": ["Ourense", "Santiago de Compostela", "Betanzos", "A Coruña", "Cambados", "Combarro", "Pontevedra", "Vigo", "Baiona"], "por_defecto": ["Santiago de Compostela", "A Coruña", "Combarro", "Pontevedra"], "tren": {"estacion": "Ourense"}},
+    {"id": "barcelona", "nombre": "Barcelona y Girona", "ciudades": ["Montserrat", "Barcelona", "Tossa de Mar", "Girona", "Figueres", "Cadaqués", "Besalú"], "por_defecto": ["Barcelona", "Girona", "Besalú"], "tren": {"estacion": "Barcelona"}},
+    {"id": "costa-dorada", "nombre": "Tarragona, Poblet y Sitges", "ciudades": ["Tarragona", "Sitges", "Montblanc", "Poblet", "Siurana", "Reus"], "por_defecto": ["Tarragona", "Sitges", "Montblanc", "Poblet"], "tren": {"estacion": "Tarragona"}},
+    {"id": "costa-del-sol", "nombre": "Málaga, Ronda y Marbella", "ciudades": ["Málaga", "Nerja", "Frigiliana", "Antequera", "Setenil de las Bodegas", "Ronda", "Marbella"], "por_defecto": ["Málaga", "Ronda", "Marbella"], "tren": {"estacion": "Málaga"}},
+    {"id": "cadiz", "nombre": "Cádiz, Jerez y los pueblos blancos", "ciudades": ["Sevilla", "Sanlúcar de Barrameda", "Jerez de la Frontera", "Cádiz", "Vejer de la Frontera", "Arcos de la Frontera"], "por_defecto": ["Jerez de la Frontera", "Cádiz", "Vejer de la Frontera", "Arcos de la Frontera"], "tren": {"estacion": "Sevilla"}}
   ],
-  "fuera": "Galicia, Barcelona y la Costa del Sol quedan fuera: a más de 5 h de Madrid cada trayecto, dos días se van en el coche."
+  "fuera": "Galicia, Cataluña y las costas de Málaga y Cádiz están a más de 5 h de Madrid en coche: sus circuitos van en tren hasta una estación y en coche de alquiler desde allí. Las islas no caben en un fin de semana así."
 }

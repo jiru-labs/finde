@@ -65,6 +65,17 @@
           <button type="button" id="vaciar" class="btn" hidden>{{vaciar}}</button>
         </div>
       </div>
+      <div class="modo" id="modo" hidden>
+        <div class="seg" role="radiogroup" aria-label="{{aria_modo}}">
+          <button type="button" role="radio" data-modo="coche">{{modo_coche}}</button>
+          <button type="button" role="radio" data-modo="tren">{{modo_tren}}</button>
+        </div>
+        <div class="modo-sel">
+          <label id="l-estacion">{{estacion}} <select id="estacion"></select></label>
+          <label id="l-ida">{{tren_ida}} <select id="ida"></select></label>
+        </div>
+        <p class="ayuda" id="ayuda-tren"></p>
+      </div>
       <p class="ayuda" id="ayuda-circ">{{ayuda}}</p>
       <p class="ayuda" id="ayuda-propio" hidden>{{ayuda_propio}}</p>
       <div class="buscador" id="buscador" hidden>
@@ -111,6 +122,7 @@
     <p>{{pie_calculo}}</p>
     <p>{{pie_peajes}}</p>
     <p id="pie-combustible"></p>
+    <p id="pie-tren"></p>
     <p id="fuera"></p>
     <p class="creditos">{{creditos}}</p>
   </footer>

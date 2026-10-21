@@ -871,5 +871,177 @@
   "region": "Cataluña",
   "horas": 3,
   "ver": "Anfiteatro romano, Catedral, muralla"
+ },
+ "Santiago de Compostela": {
+  "region": "Galicia",
+  "horas": 4,
+  "ver": "Catedral y Pórtico de la Gloria, plaza del Obradoiro, casco histórico"
+ },
+ "A Coruña": {
+  "region": "Galicia",
+  "horas": 3,
+  "ver": "Torre de Hércules, paseo marítimo, plaza de María Pita"
+ },
+ "Betanzos": {
+  "region": "Galicia",
+  "horas": 1.5,
+  "ver": "Casco medieval e iglesias góticas; su tortilla"
+ },
+ "Pontevedra": {
+  "region": "Galicia",
+  "horas": 2,
+  "ver": "Casco antiguo peatonal, la Peregrina, plazas de piedra"
+ },
+ "Combarro": {
+  "region": "Galicia",
+  "horas": 1,
+  "ver": "Hórreos y cruceiros a la orilla de la ría",
+  "busqueda": "Combarro, Poio",
+  "punto_exacto": true,
+  "coord": [
+   42.431,
+   -8.7055
+  ]
+ },
+ "Cambados": {
+  "region": "Galicia",
+  "horas": 1.5,
+  "ver": "Pazo de Fefiñáns, bodegas de albariño, barrio marinero"
+ },
+ "Vigo": {
+  "region": "Galicia",
+  "horas": 2,
+  "ver": "Casco Vello, monte de O Castro, ostras en la calle de A Pedra"
+ },
+ "Baiona": {
+  "region": "Galicia",
+  "horas": 1.5,
+  "ver": "Fortaleza de Monterreal y la réplica de la carabela Pinta"
+ },
+ "Barcelona": {
+  "region": "Cataluña",
+  "horas": 6,
+  "ver": "Sagrada Familia, barrio Gótico, paseo de Gracia y la Pedrera"
+ },
+ "Montserrat": {
+  "region": "Cataluña",
+  "horas": 2.5,
+  "ver": "Monasterio y Moreneta en lo alto de la montaña",
+  "busqueda": "Monistrol de Montserrat",
+  "coord": [
+   41.5934,
+   1.8376
+  ]
+ },
+ "Girona": {
+  "region": "Cataluña",
+  "horas": 3,
+  "ver": "Barri Vell y call judío, Catedral, casas sobre el Onyar"
+ },
+ "Besalú": {
+  "region": "Cataluña",
+  "horas": 1,
+  "ver": "Puente románico fortificado y barrio judío"
+ },
+ "Figueres": {
+  "region": "Cataluña",
+  "horas": 2,
+  "ver": "Teatro-Museo Dalí"
+ },
+ "Cadaqués": {
+  "region": "Cataluña",
+  "horas": 2,
+  "ver": "Pueblo blanco de pescadores y la casa de Dalí en Portlligat"
+ },
+ "Tossa de Mar": {
+  "region": "Cataluña",
+  "horas": 1.5,
+  "ver": "Vila Vella amurallada sobre el mar"
+ },
+ "Sitges": {
+  "region": "Cataluña",
+  "horas": 2,
+  "ver": "Casco antiguo, la iglesia sobre el mar, playas"
+ },
+ "Montblanc": {
+  "region": "Cataluña",
+  "horas": 1.5,
+  "ver": "Villa medieval amurallada"
+ },
+ "Poblet": {
+  "region": "Cataluña",
+  "horas": 1.5,
+  "ver": "Monasterio cisterciense, Patrimonio de la Humanidad",
+  "busqueda": "Vimbodí i Poblet",
+  "coord": [
+   41.3806,
+   1.0822
+  ]
+ },
+ "Reus": {
+  "region": "Cataluña",
+  "horas": 1.5,
+  "ver": "Ruta del modernismo, Gaudí Centre, vermut"
+ },
+ "Siurana": {
+  "region": "Cataluña",
+  "horas": 1,
+  "ver": "Pueblo sobre un risco frente al pantano",
+  "busqueda": "Siurana, Cornudella de Montsant",
+  "coord": [
+   41.2575,
+   0.9316
+  ],
+  "punto_exacto": true
+ },
+ "Ronda": {
+  "region": "Andalucía",
+  "horas": 3,
+  "ver": "Puente Nuevo sobre el Tajo, plaza de toros, casco antiguo"
+ },
+ "Nerja": {
+  "region": "Andalucía",
+  "horas": 2,
+  "ver": "Balcón de Europa y la cueva de Nerja"
+ },
+ "Frigiliana": {
+  "region": "Andalucía",
+  "horas": 1,
+  "ver": "Pueblo blanco de calles moriscas"
+ },
+ "Marbella": {
+  "region": "Andalucía",
+  "horas": 2,
+  "ver": "Casco antiguo, plaza de los Naranjos, paseo marítimo"
+ },
+ "Setenil de las Bodegas": {
+  "region": "Andalucía",
+  "horas": 1,
+  "ver": "Casas construidas bajo la roca"
+ },
+ "Cádiz": {
+  "region": "Andalucía",
+  "horas": 3,
+  "ver": "Catedral, barrio de la Viña, playa de la Caleta"
+ },
+ "Jerez de la Frontera": {
+  "region": "Andalucía",
+  "horas": 2.5,
+  "ver": "Alcázar, bodegas de jerez, Escuela de Arte Ecuestre"
+ },
+ "Vejer de la Frontera": {
+  "region": "Andalucía",
+  "horas": 1.5,
+  "ver": "Pueblo blanco amurallado en lo alto"
+ },
+ "Arcos de la Frontera": {
+  "region": "Andalucía",
+  "horas": 1.5,
+  "ver": "Pueblo blanco sobre la peña y su mirador"
+ },
+ "Sanlúcar de Barrameda": {
+  "region": "Andalucía",
+  "horas": 1.5,
+  "ver": "Bajo de Guía, manzanilla, Doñana al otro lado del río"
  }
 }

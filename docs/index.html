@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Finde · Conoce casi toda España en escapadas de fin de semana desde Madrid</title>
-<meta name="description" content="Rutas en coche de sábado a domingo desde Madrid: doce circuitos listos y más de cien lugares a menos de 5 horas. Elige ciudades, ajusta el tiempo en cada una y comprueba si llegas a casa el domingo.">
+<meta name="description" content="Rutas de sábado a domingo desde Madrid, en coche o en tren y coche de alquiler: diecisiete circuitos listos y cerca de doscientos lugares. Elige ciudades, ajusta el tiempo en cada una y comprueba si llegas a casa el domingo.">
 <meta name="color-scheme" content="light dark">
 <link rel="canonical" href="https://finde.jirulabs.com/">
 <link rel="alternate" hreflang="es" href="https://finde.jirulabs.com/">
@@ -13,7 +13,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://finde.jirulabs.com/">
 <meta property="og:title" content="Finde · Conoce casi toda España en escapadas de fin de semana desde Madrid">
-<meta property="og:description" content="Doce rutas listas y más de cien lugares a menos de 5 h de Madrid. Sales el sábado, vuelves el domingo y la página te dice si llegas.">
+<meta property="og:description" content="Diecisiete rutas listas, en coche o en tren hasta Galicia, Barcelona o Málaga. Sales el sábado, vuelves el domingo y la página te dice si llegas.">
 <meta property="og:locale" content="es_ES">
 <meta property="og:image" content="https://finde.jirulabs.com/og-es.png">
 <meta property="og:image:width" content="1200">
@@ -31,14 +31,14 @@
     <div>
       <p class="marca"><span class="senal">F</span> Finde <a href="https://jirulabs.com" class="jl">· jirulabs</a>
         <a href="en/" class="idioma" id="idioma" hreflang="en" lang="en">English</a></p>
-      <p class="kicker">Escapadas en coche de sábado a domingo</p>
+      <p class="kicker">Escapadas de sábado a domingo, en coche o en tren</p>
       <h1>Conoce casi toda España desde Madrid, un fin de semana cada vez</h1>
       <p class="lede">Sales el sábado por la mañana, duermes fuera una noche y el domingo por la noche estás en casa. Elige una ruta o arma la tuya: la página calcula el plan hora a hora y te dice si llegas.</p>
       <p class="portada" id="portada"></p>
     </div>
     <ul class="ventajas">
       <li><strong>Rutas que caben</strong>Circuitos clásicos pensados para dos días, con el tiempo justo para ver lo esencial de cada ciudad.</li>
-      <li><strong>Sin sorpresas</strong>Tiempos reales de carretera, descansos, peajes y lo que te vas a gastar en combustible.</li>
+      <li><strong>Sin sorpresas</strong>Tiempos reales de carretera, horarios de tren, descansos, peajes y lo que te vas a gastar en combustible.</li>
       <li><strong>A tu manera</strong>Cambia ciudades y horas, o arma tu ruta desde cero con el buscador. El plan se comparte con un enlace.</li>
     </ul>
   </header>
@@ -65,8 +65,19 @@
           <button type="button" id="vaciar" class="btn" hidden>Vaciar</button>
         </div>
       </div>
+      <div class="modo" id="modo" hidden>
+        <div class="seg" role="radiogroup" aria-label="Cómo vas">
+          <button type="button" role="radio" data-modo="coche">🚗 En coche desde Madrid</button>
+          <button type="button" role="radio" data-modo="tren">🚄 Tren + coche de alquiler</button>
+        </div>
+        <div class="modo-sel">
+          <label id="l-estacion">Tren hasta <select id="estacion"></select></label>
+          <label id="l-ida">Tren de ida, el sábado <select id="ida"></select></label>
+        </div>
+        <p class="ayuda" id="ayuda-tren"></p>
+      </div>
       <p class="ayuda" id="ayuda-circ">Solo las ciudades que pillan de camino en este circuito. Las horas por defecto son lo que suele llevar ver lo esencial a pie, con la comida incluida. La luna ☾ marca dónde duermes: por defecto, la ciudad que mejor reparte los dos días; pulsa la luna de otra ciudad para dormir allí.</p>
-      <p class="ayuda" id="ayuda-propio" hidden>Arma tu propio recorrido con cualquier lugar del buscador; todos están a menos de 5 h 15 de Madrid. Cada uno se mete donde menos rodeo supone, con las flechas cambias el orden y la luna ☾ marca dónde duermes.</p>
+      <p class="ayuda" id="ayuda-propio" hidden>Arma tu propio recorrido con cualquier lugar del buscador: en coche desde Madrid, o en tren hasta una estación y en coche de alquiler desde allí. Cada uno se mete donde menos rodeo supone, con las flechas cambias el orden y la luna ☾ marca dónde duermes.</p>
       <div class="buscador" id="buscador" hidden>
         <input id="buscar" type="search" placeholder="Busca una ciudad o un pueblo…" aria-label="Busca una ciudad o un pueblo…" autocomplete="off" spellcheck="false">
         <p class="sug-tit" id="sug-tit"></p>
@@ -86,7 +97,7 @@
     <div class="ajustes">
       <label>Salida el sábado <input id="s1" type="time" value="08:30"></label>
       <label>Salida el domingo <input id="s2" type="time" value="09:30"></label>
-      <label>En casa el domingo antes de <input id="fin" type="time" value="22:00"></label>
+      <label>En Madrid el domingo antes de <input id="fin" type="time" value="22:00"></label>
       <label>Coche <select id="coche">
         <option value="media">Media de los tres</option>
         <option value="gasolina">Gasolina</option>
@@ -111,8 +122,9 @@
     <p><strong>Cómo se calcula.</strong> Los tiempos de conducción salen del calculador de rutas Valhalla sobre el mapa de OpenStreetMap, sin tráfico. A cada tramo se le suman 15 min para entrar en la ciudad y aparcar, y 15 min más por cada 2 h seguidas al volante, para descansar como recomienda la DGT. El tiempo de cada ciudad lo pones tú; el que viene marcado es lo que suele llevar ver lo esencial a pie. En la ciudad donde duermes, ese tiempo se reparte entre la tarde del sábado y la mañana del domingo.</p>
     <p><strong>Peajes.</strong> Se marcan los kilómetros por tramos de peaje según OpenStreetMap, y cuánto tiempo cuesta evitarlos; el importe no se calcula porque depende del tramo y la hora. Con «Evitar peajes» todo el plan se recalcula por la alternativa gratuita.</p>
     <p id="pie-combustible"></p>
+    <p id="pie-tren"></p>
     <p id="fuera"></p>
-    <p class="creditos">Datos de carreteras © colaboradores de <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, rutas con <a href="https://valhalla.github.io/valhalla/">Valhalla</a> (servidor de FOSSGIS), centros urbanos de <a href="https://www.wikidata.org">Wikidata</a>, contorno de <a href="https://www.naturalearthdata.com">Natural Earth</a>. Esta página no usa cookies ni analítica y no hace ninguna llamada fuera de este sitio. <span id="generado"></span> · <a href="https://github.com/jiru-labs/finde">Código y datos</a> · Hecho por <a href="https://jirulabs.com">Jiru Labs</a>.</p>
+    <p class="creditos">Datos de carreteras © colaboradores de <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, rutas con <a href="https://valhalla.github.io/valhalla/">Valhalla</a> (servidor de FOSSGIS), centros urbanos de <a href="https://www.wikidata.org">Wikidata</a>, contorno de <a href="https://www.naturalearthdata.com">Natural Earth</a>, horarios de tren de <a href="https://data.renfe.com">Renfe</a> (datos abiertos). Esta página no usa cookies ni analítica y no hace ninguna llamada fuera de este sitio. <span id="generado"></span> · <a href="https://github.com/jiru-labs/finde">Código y datos</a> · Hecho por <a href="https://jirulabs.com">Jiru Labs</a>.</p>
   </footer>
 </div>
 <noscript><p class="wrap">Esta página necesita JavaScript para calcular los planes.</p></noscript>

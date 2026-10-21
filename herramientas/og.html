@@ -29,22 +29,28 @@ const es = new URLSearchParams(location.search).get("lang") !== "en";
 const D = await (await fetch("../docs/datos.json")).json();
 document.getElementById("h1").textContent = es ? "Conoce casi toda España desde Madrid, un fin de semana cada vez" : "See most of Spain from Madrid, one weekend at a time";
 document.getElementById("sub").textContent = es
-  ? `${D.circuitos.length} rutas listas y ${D.catalogo_n} lugares a menos de 5\u00a0h. Sales el sábado, vuelves el domingo.`
-  : `${D.circuitos.length} ready-made routes and ${D.catalogo_n} places under 5\u00a0h away. Leave on Saturday, home on Sunday.`;
-// Península entera, con todas las rutas estándar de los circuitos.
-const vb = [30, 10, 520, 470];
+  ? `${D.circuitos.length} rutas listas y ${D.catalogo_n} lugares, en coche o en tren. Sales el sábado, vuelves el domingo.`
+  : `${D.circuitos.length} ready-made routes and ${D.catalogo_n} places, by car or by train. Leave on Saturday, home on Sunday.`;
+// Península entera, con todas las rutas estándar de los circuitos; las de tren salen de su estación.
+const vb = [15, -57, 585, 624];   // toda la península, de Baiona a Cadaqués (590×630, misma proporción)
 let s = "";
 for (const [iso, d] of Object.entries(D.mapa.paises))
   s += `<path d="${d}" fill="${iso === "ESP" ? "#f7f5ef" : "#ebe8df"}" stroke="#b9c3cd" stroke-width="1.2"/>`;
-const vistos = new Set(); let lineas = "";
+const vistos = new Set(); let lineas = "", trenes = "";
 for (const c of D.circuitos) {
-  const seq = ["Madrid", ...c.ciudades.filter(x => c.por_defecto.includes(x)), "Madrid"];
+  const o = c.tren?.estacion ?? "Madrid", seq = [o, ...c.ciudades.filter(x => c.por_defecto.includes(x)), o];
+  if (c.tren) {
+    const [a, b] = D.ciudades.Madrid.xy, [x, y] = D.ciudades[o].xy;
+    trenes += `<line x1="${a}" y1="${b}" x2="${x}" y2="${y}"/>`;
+  }
   for (let i = 1; i < seq.length; i++) {
+    if (seq[i - 1] === seq[i]) continue;
     const k = [seq[i - 1], seq[i]].sort().join("|");
     if (vistos.has(k)) continue; vistos.add(k);
     lineas += `<polyline points="${D.tramos[k].trazado.map(q => q.join(",")).join(" ")}"/>`;
   }
 }
+s += `<g stroke="#7a3e9d" stroke-width="3" stroke-dasharray="9 6" stroke-linecap="round">${trenes}</g>`;
 s += `<g fill="none" stroke-linejoin="round" stroke-linecap="round"><g stroke="#fff" stroke-width="6">${lineas}</g><g stroke="#1d4f9c" stroke-width="3.2">${lineas}</g></g>`;
 const ciudades = new Set(D.circuitos.flatMap(c => c.por_defecto));
 for (const c of ciudades) { const [x, y] = D.ciudades[c].xy; s += `<circle cx="${x}" cy="${y}" r="5" fill="#1d4f9c" stroke="#fff" stroke-width="2"/>`; }

@@ -7,7 +7,7 @@
 :root{
   --bg:#eef1f4; --surface:#fff; --ink:#13202e; --muted:#566373; --line:#d5dce4;
   --mar:#dfe8f1; --tierra:#f7f5ef; --tierra-otra:#ebe8df; --borde:#b9c3cd;
-  --via:#1d4f9c; --via-ink:#fff; --peaje:#b3261e; --peaje-bg:#fbe9e7;
+  --via:#1d4f9c; --via-ink:#fff; --peaje:#b3261e; --peaje-bg:#fbe9e7; --tren:#7a3e9d;
   --ok:#22764a; --ok-bg:#e5f3ea; --aviso:#9a5b00; --aviso-bg:#fdf1dc; --mal:#b3261e; --mal-bg:#fbe9e7;
   --f-rotulo:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
   --f-texto:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -16,7 +16,7 @@
 @media (prefers-color-scheme:dark){:root{
   --bg:#0f151c; --surface:#17202a; --ink:#e6ecf2; --muted:#98a6b5; --line:#2a3644;
   --mar:#122030; --tierra:#1d2733; --tierra-otra:#18212b; --borde:#33465a;
-  --via:#6fa3e8; --via-ink:#0b1118; --peaje:#ff8a80; --peaje-bg:#3a1c1a;
+  --via:#6fa3e8; --via-ink:#0b1118; --peaje:#ff8a80; --peaje-bg:#3a1c1a; --tren:#c99be6;
   --ok:#6cc08f; --ok-bg:#16301f; --aviso:#f0b35a; --aviso-bg:#352713; --mal:#ff8a80; --mal-bg:#3a1c1a;
   color-scheme:dark}}
 
@@ -48,7 +48,7 @@ h1{font:700 clamp(30px,5.2vw,48px)/1.02 var(--f-rotulo);margin:0;letter-spacing:
 
 /* Principal */
 .principal{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:24px;align-items:start}
-@media (max-width:900px){.principal{grid-template-columns:1fr}}
+@media (max-width:900px){.principal{grid-template-columns:minmax(0,1fr)}}
 .col-mapa{display:grid;gap:12px;position:sticky;top:12px}
 @media (max-width:900px){.col-mapa{position:static}}
 .mapa{background:var(--mar);border:1px solid var(--line);border-radius:8px;overflow:hidden}
@@ -194,3 +194,18 @@ td.tarde{color:var(--mal);font-weight:600}
 .ventajas{list-style:none;margin:0;padding:0;display:grid;gap:10px}
 .ventajas li{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--via);border-radius:6px;padding:10px 14px;font-size:14.5px;color:var(--muted)}
 .ventajas strong{display:block;font:700 18px/1.2 var(--f-rotulo);color:var(--ink);letter-spacing:.01em}
+
+/* Cómo se va: en coche o en tren + coche de alquiler */
+.modo{display:grid;gap:8px;min-width:0;margin:0 0 12px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.seg{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;width:fit-content;max-width:100%}
+.seg button{flex:1 1 auto;min-width:0}
+.seg button{border:0;background:transparent;padding:6px 12px;cursor:pointer;font-size:14px;color:var(--ink)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-checked="true"]{background:var(--via);color:var(--via-ink);font-weight:600}
+.modo-sel{display:flex;flex-wrap:wrap;gap:8px 16px}
+.modo-sel label{display:grid;flex:1 1 220px;gap:4px;font:600 13px/1.2 var(--f-rotulo);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);min-width:0}
+.modo-sel select{width:100%;font:400 15px/1.2 var(--f-texto);text-transform:none;letter-spacing:0;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:5px 8px;max-width:100%}
+.modo .ayuda{margin:0;font-size:13px}
+.tl .tren .que{color:var(--tren);font-size:15px;font-weight:600}
+.tl .alquiler .que{color:var(--muted);font-size:14px;font-style:italic}
+.tipo{display:inline-block;font:600 12.5px/1.45 var(--f-rotulo);background:var(--tren);color:var(--via-ink);border-radius:3px;padding:0 5px;margin-left:5px;letter-spacing:.03em}

@@ -1,9 +1,11 @@
 # Finde
 
-**Escapadas de fin de semana en coche desde Madrid** → <https://finde.jirulabs.com>
+**Escapadas de fin de semana desde Madrid, en coche o en tren y coche de alquiler** → <https://finde.jirulabs.com>
 
-Doce circuitos de sábado a domingo, con salida el sábado por la mañana, una noche fuera y vuelta a
-Madrid el domingo por la noche. En cada circuito eliges qué ciudades ver (solo las que pillan de
+Diecisiete circuitos de sábado a domingo, con salida el sábado por la mañana, una noche fuera y vuelta a
+Madrid el domingo por la noche. Los cinco que quedan a más de 5 h en coche (Galicia, Barcelona, la Costa
+Dorada, Málaga y Cádiz) van en tren hasta una estación y en coche de alquiler desde allí, y cualquier
+otro circuito con una estación entre sus ciudades se puede hacer igual. En cada circuito eliges qué ciudades ver (solo las que pillan de
 camino), ajustas el tiempo en cada una y la página te dice si llegas a casa a tu hora, con el plan
 hora a hora, los kilómetros de peaje y lo que cuesta evitarlos. Un plan se comparte con un enlace.
 
@@ -14,18 +16,18 @@ Es una página estática: no tiene servidor, cookies ni analítica, y no llama a
 | Ruta | Qué es |
 |---|---|
 | `datos/ciudades.json` | **Editorial.** Ciudades, región, horas estándar de visita y qué ver. |
-| `datos/circuitos.json` | **Editorial.** Circuitos: ciudades en orden de recorrido y las marcadas por defecto. |
+| `datos/circuitos.json` | **Editorial.** Circuitos: ciudades en orden de recorrido, las marcadas por defecto y, si va en tren, la estación (`tren`). |
 | `datos/coches.json` | **Editorial.** Consumo en autovía de un coche de gasolina, uno diésel y un híbrido no enchufable. |
 | `datos/en.json` | **Editorial, inglés.** Qué ver, regiones, nombres de circuitos. Si falta una entrada, `construir.py` no genera nada. |
 | `datos/textos.json` | Textos fijos de la página en los dos idiomas (los que cambian con el plan están en `docs/app.js`, objeto `T`). |
-| `datos/generado.json` | Derivado por `herramientas/descargar.py`: coordenadas, tramos, mapa y precios del combustible. No se edita. |
-| `herramientas/descargar.py` | Pide coordenadas, rutas y precios a servicios abiertos (ver abajo). |
+| `datos/generado.json` | Derivado por `herramientas/descargar.py`: coordenadas, tramos, mapa, precios del combustible y trenes. No se edita. |
+| `herramientas/descargar.py` | Pide coordenadas, rutas, precios y horarios de tren a servicios abiertos (ver abajo). |
 | `herramientas/plantilla.html` | El HTML de la página, con un hueco `{{clave}}` por cada texto. |
 | `herramientas/construir.py` | Genera `docs/datos.json`, `docs/index.html` (es), `docs/en/index.html` (en) y el sitemap. Sin red. |
 | `docs/` | El sitio publicado (GitHub Pages sirve esta carpeta). `index.html` y `en/index.html` son generados: no se editan a mano. |
 
 ```bash
-python3 herramientas/descargar.py   # si cambian ciudades/circuitos o para actualizar precios (rutas cacheadas)
+python3 herramientas/descargar.py   # si cambian ciudades/circuitos, o para actualizar precios y horarios (rutas cacheadas)
 python3 herramientas/construir.py
 python3 -m http.server -d docs 8000 # y abrir http://localhost:8000
 ```
@@ -56,10 +58,24 @@ chrome --headless --window-size=1200,630 --virtual-time-budget=5000 \
   gasolineras del Geoportal de carburantes del Ministerio. Por defecto el gasto es la media de los
   tres tipos de coche de `coches.json`; en la página se puede elegir uno y cambiar consumo y precio.
 
+- **Trenes**: GTFS de Renfe de alta velocidad, larga y media distancia
+  ([data.renfe.com](https://data.renfe.com), se publica cada día). Se guardan los trenes directos
+  Madrid ↔ cada estación del primer sábado y domingo a 3 días o más de la descarga: los horarios
+  se quedan con esa fecha hasta la siguiente descarga, que se hace a mano. Una ciudad es estación
+  de la página si tiene una de Renfe a menos de 9 km, al menos dos trenes directos cada día, y el
+  más rápido, con la media hora de recoger el coche, gana 45 min o más al coche (contado como en la
+  página, con aparcar y descansos). Ouigo e Iryo están
+  en el [Punto de Acceso Nacional](https://nap.transportes.gob.es), que pide registrarse: no entran.
+  El precio del billete y del alquiler no se calcula.
+
 ### Reglas del plan
 
 - A cada tramo se suman 15 min para entrar en la ciudad y aparcar, más 15 min por cada 2 h de
   conducción seguida, que es el descanso que recomienda la DGT.
+- En tren: el sábado empieza al llegar el tren elegido (por defecto, el primero que sale de Madrid
+  desde las 07:00) más 30 min de recoger el coche; el domingo acaba al devolverlo (30 min) y coger el
+  primer tren que da tiempo. Con menos de 20 min de margen para ese tren, el plan es «muy justo».
+  Si la estación está a más de 4 km del centro, se suma el trayecto en coche hasta ella.
 - Las horas de cada ciudad son lo que suele llevar ver lo esencial a pie, con la comida incluida.
   Son una estimación editorial y se pueden cambiar en la página.
 - Si no se elige dónde dormir, la página prueba cada ciudad y cada reparto de horas entre la tarde

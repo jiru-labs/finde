@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Finde · See most of Spain on weekend road trips from Madrid</title>
-<meta name="description" content="Saturday-to-Sunday road trips from Madrid: twelve ready-made circuits and over a hundred places less than 5 hours away. Pick the cities, set the time in each one and check that you are home on Sunday.">
+<meta name="description" content="Saturday-to-Sunday trips from Madrid, by car or by train and hire car: seventeen ready-made circuits and nearly two hundred places. Pick the cities, set the time in each one and check that you are home on Sunday.">
 <meta name="color-scheme" content="light dark">
 <link rel="canonical" href="https://finde.jirulabs.com/en/">
 <link rel="alternate" hreflang="es" href="https://finde.jirulabs.com/">
@@ -13,7 +13,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://finde.jirulabs.com/en/">
 <meta property="og:title" content="Finde · See most of Spain on weekend road trips from Madrid">
-<meta property="og:description" content="Twelve ready-made routes and over a hundred places less than 5 h from Madrid. Leave on Saturday, come back on Sunday, and the page tells you if it fits.">
+<meta property="og:description" content="Seventeen ready-made routes, by car or by train to Galicia, Barcelona or Málaga. Leave on Saturday, come back on Sunday, and the page tells you if it fits.">
 <meta property="og:locale" content="en_GB">
 <meta property="og:image" content="https://finde.jirulabs.com/og-en.png">
 <meta property="og:image:width" content="1200">
@@ -31,14 +31,14 @@
     <div>
       <p class="marca"><span class="senal">F</span> Finde <a href="https://jirulabs.com/en/" class="jl">· jirulabs</a>
         <a href="../" class="idioma" id="idioma" hreflang="es" lang="es">Español</a></p>
-      <p class="kicker">Saturday-to-Sunday road trips</p>
+      <p class="kicker">Saturday-to-Sunday trips, by car or by train</p>
       <h1>See most of Spain from Madrid, one weekend at a time</h1>
       <p class="lede">Leave on Saturday morning, spend one night away and be home on Sunday night. Pick a route or build your own: the page works out the plan hour by hour and tells you whether it fits.</p>
       <p class="portada" id="portada"></p>
     </div>
     <ul class="ventajas">
       <li><strong>Routes that fit</strong>Classic circuits designed for two days, with just enough time to see the essentials of each city.</li>
-      <li><strong>No surprises</strong>Real driving times, breaks, tolls and what you will spend on fuel.</li>
+      <li><strong>No surprises</strong>Real driving times, train timetables, breaks, tolls and what you&#x27;ll spend on fuel.</li>
       <li><strong>Your way</strong>Change cities and hours, or build your route from scratch with the search box. Share the plan with a link.</li>
     </ul>
   </header>
@@ -65,8 +65,19 @@
           <button type="button" id="vaciar" class="btn" hidden>Clear</button>
         </div>
       </div>
+      <div class="modo" id="modo" hidden>
+        <div class="seg" role="radiogroup" aria-label="How you travel">
+          <button type="button" role="radio" data-modo="coche">🚗 By car from Madrid</button>
+          <button type="button" role="radio" data-modo="tren">🚄 Train + hire car</button>
+        </div>
+        <div class="modo-sel">
+          <label id="l-estacion">Train to <select id="estacion"></select></label>
+          <label id="l-ida">Outbound train, Saturday <select id="ida"></select></label>
+        </div>
+        <p class="ayuda" id="ayuda-tren"></p>
+      </div>
       <p class="ayuda" id="ayuda-circ">Only the cities along this circuit. The default hours are what it usually takes to see the essentials on foot, lunch included. The moon ☾ marks where you sleep: by default, the city that best balances the two days; tap another city&#x27;s moon to sleep there instead.</p>
-      <p class="ayuda" id="ayuda-propio" hidden>Build your own route with any place in the search; all of them are less than 5 h 15 from Madrid. Each one goes where it adds the least detour, the arrows change the order and the moon ☾ marks where you sleep.</p>
+      <p class="ayuda" id="ayuda-propio" hidden>Build your own route with any place in the search box: by car from Madrid, or by train to a station and by hire car from there. Each one goes where it adds the least detour, the arrows change the order and the moon ☾ marks where you sleep.</p>
       <div class="buscador" id="buscador" hidden>
         <input id="buscar" type="search" placeholder="Search for a city or town…" aria-label="Search for a city or town…" autocomplete="off" spellcheck="false">
         <p class="sug-tit" id="sug-tit"></p>
@@ -86,7 +97,7 @@
     <div class="ajustes">
       <label>Leave on Saturday <input id="s1" type="time" value="08:30"></label>
       <label>Leave on Sunday <input id="s2" type="time" value="09:30"></label>
-      <label>Home on Sunday by <input id="fin" type="time" value="22:00"></label>
+      <label>In Madrid on Sunday before <input id="fin" type="time" value="22:00"></label>
       <label>Car <select id="coche">
         <option value="media">Average of the three</option>
         <option value="gasolina">Petrol</option>
@@ -111,8 +122,9 @@
     <p><strong>How it is calculated.</strong> Driving times come from the Valhalla route planner on OpenStreetMap data, without traffic. Each leg gets 15 min added to get into town and park, plus 15 min for every 2 h of continuous driving, the break recommended by Spain's traffic authority (DGT). You set the time in each city; the default is what it usually takes to see the essentials on foot. In the city where you sleep, that time is split between Saturday afternoon and Sunday morning.</p>
     <p><strong>Tolls.</strong> The page shows the kilometres on toll roads according to OpenStreetMap and how much time it costs to avoid them; the price is not calculated because it depends on the stretch and the time of day. With “Avoid tolls” the whole plan is recalculated on the free alternative.</p>
     <p id="pie-combustible"></p>
+    <p id="pie-tren"></p>
     <p id="fuera"></p>
-    <p class="creditos">Road data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, routes by <a href="https://valhalla.github.io/valhalla/">Valhalla</a> (FOSSGIS server), city centres from <a href="https://www.wikidata.org">Wikidata</a>, outline from <a href="https://www.naturalearthdata.com">Natural Earth</a>. This page uses no cookies or analytics and makes no requests outside this site. <span id="generado"></span> · <a href="https://github.com/jiru-labs/finde">Code and data</a> · Made by <a href="https://jirulabs.com/en/">Jiru Labs</a>.</p>
+    <p class="creditos">Road data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, routes by <a href="https://valhalla.github.io/valhalla/">Valhalla</a> (FOSSGIS server), city centres from <a href="https://www.wikidata.org">Wikidata</a>, outline from <a href="https://www.naturalearthdata.com">Natural Earth</a>, train timetables from <a href="https://data.renfe.com">Renfe</a> (open data). This page uses no cookies or analytics and makes no requests outside this site. <span id="generado"></span> · <a href="https://github.com/jiru-labs/finde">Code and data</a> · Made by <a href="https://jirulabs.com/en/">Jiru Labs</a>.</p>
   </footer>
 </div>
 <noscript><p class="wrap">This page needs JavaScript to calculate the plans.</p></noscript>

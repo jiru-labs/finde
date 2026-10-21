@@ -29,9 +29,14 @@
   "extremadura": "Trujillo, Cáceres and Mérida",
   "levante": "Cuenca and Valencia",
   "aragon": "Zaragoza, Teruel and Albarracín",
-  "mancha": "Toledo and La Mancha"
+  "mancha": "Toledo and La Mancha",
+  "galicia": "Santiago and the Rías Baixas",
+  "barcelona": "Barcelona and Girona",
+  "costa-dorada": "Tarragona, Poblet and Sitges",
+  "costa-del-sol": "Málaga, Ronda and Marbella",
+  "cadiz": "Cádiz, Jerez and the white towns"
  },
- "fuera": "Galicia, Barcelona and the Costa del Sol are left out: each is more than 5 hours from Madrid one way, so two days would go on driving.",
+ "fuera": "Galicia, Catalonia and the coasts of Málaga and Cádiz are more than 5 hours from Madrid by car: their circuits go by train to a station and by hire car from there. The islands don't fit into a weekend like this.",
  "ciudades": {
   "Madrid": {
    "ver": "Start and finish (Puerta del Sol, km 0)"
@@ -531,6 +536,96 @@
   },
   "Tarragona": {
    "ver": "Roman amphitheatre, Cathedral, walls"
+  },
+  "Santiago de Compostela": {
+   "ver": "Cathedral and Portico of Glory, Praza do Obradoiro, old town"
+  },
+  "A Coruña": {
+   "ver": "Tower of Hercules, seafront promenade, María Pita square"
+  },
+  "Betanzos": {
+   "ver": "Medieval old town and Gothic churches; its famous omelette"
+  },
+  "Pontevedra": {
+   "ver": "Pedestrian old town, the Pilgrim church, stone squares"
+  },
+  "Combarro": {
+   "ver": "Granaries and stone crosses on the estuary shore"
+  },
+  "Cambados": {
+   "ver": "Fefiñáns manor, Albariño wineries, fishermen's quarter"
+  },
+  "Vigo": {
+   "ver": "Old town, O Castro hill, oysters on Rúa da Pedra"
+  },
+  "Baiona": {
+   "ver": "Monterreal fortress and the replica of the caravel Pinta"
+  },
+  "Barcelona": {
+   "ver": "Sagrada Família, Gothic Quarter, Passeig de Gràcia and La Pedrera"
+  },
+  "Montserrat": {
+   "ver": "Mountaintop monastery and the Black Madonna"
+  },
+  "Girona": {
+   "ver": "Old Town and Jewish quarter, Cathedral, houses on the Onyar"
+  },
+  "Besalú": {
+   "ver": "Fortified Romanesque bridge and Jewish quarter"
+  },
+  "Figueres": {
+   "ver": "Dalí Theatre-Museum"
+  },
+  "Cadaqués": {
+   "ver": "Whitewashed fishing village and Dalí's house at Portlligat"
+  },
+  "Tossa de Mar": {
+   "ver": "Walled old town above the sea"
+  },
+  "Sitges": {
+   "ver": "Old town, the church above the sea, beaches"
+  },
+  "Montblanc": {
+   "ver": "Walled medieval town"
+  },
+  "Poblet": {
+   "ver": "Cistercian monastery, a World Heritage Site"
+  },
+  "Reus": {
+   "ver": "Modernisme route, Gaudí Centre, vermouth"
+  },
+  "Siurana": {
+   "ver": "Village on a cliff above the reservoir"
+  },
+  "Ronda": {
+   "ver": "Puente Nuevo over the gorge, bullring, old town"
+  },
+  "Nerja": {
+   "ver": "Balcony of Europe and the Nerja caves"
+  },
+  "Frigiliana": {
+   "ver": "Whitewashed village with Moorish lanes"
+  },
+  "Marbella": {
+   "ver": "Old town, Plaza de los Naranjos, seafront promenade"
+  },
+  "Setenil de las Bodegas": {
+   "ver": "Houses built under the rock"
+  },
+  "Cádiz": {
+   "ver": "Cathedral, La Viña quarter, La Caleta beach"
+  },
+  "Jerez de la Frontera": {
+   "ver": "Alcázar, sherry bodegas, Royal School of Equestrian Art"
+  },
+  "Vejer de la Frontera": {
+   "ver": "Walled whitewashed hilltop town"
+  },
+  "Arcos de la Frontera": {
+   "ver": "Whitewashed town on a crag, with its viewpoint"
+  },
+  "Sanlúcar de Barrameda": {
+   "ver": "Bajo de Guía, manzanilla, Doñana across the river"
   }
  }
 }
