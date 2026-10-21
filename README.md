@@ -22,13 +22,13 @@ Es una página estática: no tiene servidor, cookies ni analítica, y no llama a
 | `datos/en.json` | **Editorial, inglés.** Qué ver, regiones, nombres de circuitos. Si falta una entrada, `construir.py` no genera nada. |
 | `datos/textos.json` | Textos fijos de la página en los dos idiomas (los que cambian con el plan están en `docs/app.js`, objeto `T`). |
 | `datos/generado.json` | Derivado por `herramientas/descargar.py`: coordenadas, tramos, mapa, precios del combustible y trenes. No se edita. |
-| `herramientas/descargar.py` | Pide coordenadas, rutas, precios y horarios de tren a servicios abiertos (ver abajo). |
+| `herramientas/descargar.py` | Pide coordenadas, rutas, precios y la duración del tren a servicios abiertos (ver abajo). |
 | `herramientas/plantilla.html` | El HTML de la página, con un hueco `{{clave}}` por cada texto. |
 | `herramientas/construir.py` | Genera `docs/datos.json`, `docs/index.html` (es), `docs/en/index.html` (en) y el sitemap. Sin red. |
 | `docs/` | El sitio publicado (GitHub Pages sirve esta carpeta). `index.html` y `en/index.html` son generados: no se editan a mano. |
 
 ```bash
-python3 herramientas/descargar.py   # si cambian ciudades/circuitos, o para actualizar precios y horarios (rutas cacheadas)
+python3 herramientas/descargar.py   # si cambian ciudades/circuitos, o para actualizar precios y duraciones de tren (rutas cacheadas)
 python3 herramientas/construir.py
 python3 -m http.server -d docs 8000 # y abrir http://localhost:8000
 ```
