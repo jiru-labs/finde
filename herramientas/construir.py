@@ -114,8 +114,10 @@ def compacta(v):
 
 # Los textos con HTML a propósito (llevan etiquetas) van tal cual; el resto se escapa.
 CON_HTML = {"pie_calculo", "pie_peajes", "creditos"}
+# {n_circuitos} en un texto = cuántos hay de verdad (26-10-2026: la portada decía «diecisiete» con 19).
+N_CIRC = str(len(salida["circuitos"]))
 for idioma, destino in (("es", "docs/index.html"), ("en", "docs/en/index.html")):
-    t = textos[idioma]
+    t = {k: v.replace("{n_circuitos}", N_CIRC) if isinstance(v, str) else v for k, v in textos[idioma].items()}
     pagina = re.sub(r"\{\{(\w+)\}\}",
                     lambda m: t[m[1]] if m[1] in CON_HTML else html.escape(t[m[1]]), plantilla)
     (RAIZ / destino).parent.mkdir(parents=True, exist_ok=True)
