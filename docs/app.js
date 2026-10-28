@@ -564,7 +564,7 @@ function pintarMapa(p) {
     const [ex, ey] = C[S.tren].xy;
     s += `<line x1="${C.Madrid.xy[0]}" y1="${C.Madrid.xy[1]}" x2="${ex}" y2="${ey}" stroke="var(--tren)" stroke-width="${2.6 * k}" stroke-dasharray="${7 * k} ${4.5 * k}" stroke-linecap="round"/>`;
   }
-  s += `<g fill="none" stroke-linejoin="round" stroke-linecap="round"><g stroke="var(--surface)" stroke-width="${6.5 * k}">${linea}</g><g stroke="var(--via)" stroke-width="${3.4 * k}">${linea}</g></g>`;
+  s += `<g fill="none" stroke-linejoin="round" stroke-linecap="round"><g stroke="var(--surface)" stroke-width="${6.5 * k}">${linea}</g><g stroke="var(--via-claro)" stroke-width="${3.4 * k}">${linea}</g></g>`;
 
   const fs = 14 * k, ocupado = [];
   const solape = r => ocupado.reduce((s, o) =>

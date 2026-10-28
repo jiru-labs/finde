@@ -3,17 +3,15 @@
      interfaz, sirviendo la raíz del repo: og.html?lang=es. Ver README, «Imagen para compartir». -->
 <html><head><meta charset="utf-8">
 <style>
-@font-face{font-family:"Barlow";src:url(../docs/fuentes/barlow-400.woff2) format("woff2");font-weight:400}
-@font-face{font-family:"Barlow Condensed";src:url(../docs/fuentes/barlow-condensed-700.woff2) format("woff2");font-weight:700}
 html,body{margin:0;width:1200px;height:630px;overflow:hidden}
-body{background:#eef1f4;color:#13202e;font-family:"Barlow",sans-serif;display:grid;grid-template-columns:610px 590px}
+body{background:#fff;color:#343a40;font-family:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;display:grid;grid-template-columns:610px 590px}
 .txt{padding:56px 20px 48px 64px;display:flex;flex-direction:column;justify-content:space-between}
-.marca{display:flex;align-items:center;gap:12px;font:700 30px/1 "Barlow Condensed";letter-spacing:.04em}
-.senal{display:inline-grid;place-items:center;width:44px;height:44px;background:#1d4f9c;color:#fff;border-radius:7px;box-shadow:inset 0 0 0 3px #1d4f9c,inset 0 0 0 5px #fff}
-h1{font:700 64px/1.0 "Barlow Condensed";margin:0;letter-spacing:.005em}
-p{font-size:25px;line-height:1.35;color:#566373;margin:0}
-.url{font:700 26px/1 "Barlow Condensed";color:#1d4f9c;letter-spacing:.03em}
-.mapa{background:#dfe8f1}
+.marca{display:flex;align-items:center;gap:12px;font:600 30px/1 -apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.senal{display:inline-grid;place-items:center;width:44px;height:44px;background:#3768bd;color:#fff;border-radius:7px;box-shadow:inset 0 0 0 3px #3768bd,inset 0 0 0 5px #fff}
+h1{font:500 52px/1.12 -apple-system,"Segoe UI",Roboto,Arial,sans-serif;margin:0;letter-spacing:-.01em}
+p{font:25px/1.4 Georgia,Cambria,"Times New Roman",serif;color:#676c71;margin:0}
+.url{font:600 25px/1 -apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#3768bd}
+.mapa{background:#eaf1fb;border-left:1px solid #ddd}
 svg{width:590px;height:630px;display:block}
 </style></head>
 <body>
@@ -35,7 +33,7 @@ document.getElementById("sub").textContent = es
 const vb = [15, -57, 585, 624];   // toda la península, de Baiona a Cadaqués (590×630, misma proporción)
 let s = "";
 for (const [iso, d] of Object.entries(D.mapa.paises))
-  s += `<path d="${d}" fill="${iso === "ESP" ? "#f7f5ef" : "#ebe8df"}" stroke="#b9c3cd" stroke-width="1.2"/>`;
+  s += `<path d="${d}" fill="${iso === "ESP" ? "#fff" : "#f1f2f4"}" stroke="#c9ced4" stroke-width="1.2"/>`;
 const vistos = new Set(); let lineas = "", trenes = "";
 for (const c of D.circuitos) {
   const o = c.tren?.estacion ?? "Madrid", seq = [o, ...c.ciudades.filter(x => c.por_defecto.includes(x)), o];
@@ -50,13 +48,13 @@ for (const c of D.circuitos) {
     lineas += `<polyline points="${D.tramos[k].trazado.map(q => q.join(",")).join(" ")}"/>`;
   }
 }
-s += `<g stroke="#7a3e9d" stroke-width="3" stroke-dasharray="9 6" stroke-linecap="round">${trenes}</g>`;
-s += `<g fill="none" stroke-linejoin="round" stroke-linecap="round"><g stroke="#fff" stroke-width="6">${lineas}</g><g stroke="#1d4f9c" stroke-width="3.2">${lineas}</g></g>`;
+s += `<g stroke="#0f7383" stroke-width="3" stroke-dasharray="9 6" stroke-linecap="round">${trenes}</g>`;
+s += `<g fill="none" stroke-linejoin="round" stroke-linecap="round"><g stroke="#fff" stroke-width="6">${lineas}</g><g stroke="#4582ec" stroke-width="3.2">${lineas}</g></g>`;
 const ciudades = new Set(D.circuitos.flatMap(c => c.por_defecto));
-for (const c of ciudades) { const [x, y] = D.ciudades[c].xy; s += `<circle cx="${x}" cy="${y}" r="5" fill="#1d4f9c" stroke="#fff" stroke-width="2"/>`; }
+for (const c of ciudades) { const [x, y] = D.ciudades[c].xy; s += `<circle cx="${x}" cy="${y}" r="5" fill="#3768bd" stroke="#fff" stroke-width="2"/>`; }
 const [mx, my] = D.ciudades.Madrid.xy;
-s += `<rect x="${mx - 8}" y="${my - 8}" width="16" height="16" fill="#13202e" transform="rotate(45 ${mx} ${my})"/>`;
-s += `<text x="${mx + 14}" y="${my + 22}" font-family="Barlow Condensed" font-weight="700" font-size="24" fill="#13202e" paint-order="stroke" stroke="#f7f5ef" stroke-width="4">Madrid</text>`;
+s += `<rect x="${mx - 8}" y="${my - 8}" width="16" height="16" fill="#343a40" transform="rotate(45 ${mx} ${my})"/>`;
+s += `<text x="${mx + 14}" y="${my + 22}" font-family="-apple-system,Segoe UI,Roboto,Arial,sans-serif" font-weight="600" font-size="22" fill="#343a40" paint-order="stroke" stroke="#fff" stroke-width="4">Madrid</text>`;
 const m = document.getElementById("m");
 m.setAttribute("viewBox", vb.join(" "));
 m.setAttribute("preserveAspectRatio", "xMidYMid slice");

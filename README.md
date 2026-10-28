@@ -85,5 +85,4 @@ chrome --headless --window-size=1200,630 --virtual-time-budget=5000 \
 ## Licencias
 
 Código bajo MIT (`LICENSE`). Los datos de carreteras derivan de OpenStreetMap
-(© colaboradores de OpenStreetMap, [ODbL](https://www.openstreetmap.org/copyright)). Las fuentes
-Barlow se distribuyen bajo SIL Open Font License (`docs/fuentes/OFL.txt`).
+(© colaboradores de OpenStreetMap, [ODbL](https://www.openstreetmap.org/copyright)).
